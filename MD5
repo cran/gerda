@@ -1,0 +1,13 @@
+683f95419b11c5daaae6a6437b0c88d1 *DESCRIPTION
+d2816680b4047bffa1b444414aeaade3 *LICENSE
+2717840c3620a85736fd3f61a932036c *NAMESPACE
+d7d826b9013b09c5f696aa2f465abf4e *R/gerda_data_list.R
+ef3ca1dbe5b2bd2a2d30daaa569f4bc4 *R/load_gerda_web.R
+52b7dfa8d09a354d711c92d5bebe1e08 *README.md
+cbcc27f9c40351887a87afe677fd745f *build/vignette.rds
+efedc874825ea03ea8f604ebbeecac5b *inst/doc/gerda.R
+72c1872bce7d89886eb2675494d52332 *inst/doc/gerda.Rmd
+4319dd087c7a8a4eedb66b6943f11c01 *inst/doc/gerda.html
+a62d4767bd0c9681fa63b065ba6de0ea *man/gerda_data_list.Rd
+4bee78ab3dd3d452fba0d21aced57c3e *man/load_gerda_web.Rd
+72c1872bce7d89886eb2675494d52332 *vignettes/gerda.Rmd
