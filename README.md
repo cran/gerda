@@ -1,12 +1,18 @@
 # GERDA R Package
 
-This package provides functions to access and work with GERDA datasets.
+This package provides tools to download comprehensive datasets of local, state, and federal election results in Germany from 1990 to 2021. The package facilitates access to data on turnout, vote shares for major parties, and demographic information across different levels of government.
 
 **Note: This package is currently a work in progress. Comments and suggestions are welcome -- please send to <hhilbig@ucdavis.edu>.**
 
 ## Installation
 
-You can install the development version of GERDA from GitHub using the `devtools` package:
+You can install GERDA from CRAN:
+
+```R
+install.packages("gerda")
+```
+
+Or install the development version from GitHub:
 
 ```R
 # Install devtools if you haven't already
@@ -14,7 +20,7 @@ if (!requireNamespace("devtools", quietly = TRUE)) {
   install.packages("devtools")
 }
 
-# Install GERDA
+# Install GERDA development version
 devtools::install_github("hhilbig/gerda")
 ```
 
@@ -29,6 +35,10 @@ devtools::install_github("hhilbig/gerda")
   - `file_format`: Specifies the format of the file to load, either "rds" or "csv" (default is "rds").
 
   The function includes fuzzy matching for file names and will suggest close matches if an exact match isn't found.
+
+- **`party_crosswalk(party_gerda, destination)`**: Maps party names to their corresponding values from the ParlGov database. For a vector of party names, it returns a vector of the same length with the corresponding values from the destination column. Parameters:
+  - `party_gerda`: A character vector of party names using GERDA's naming scheme
+  - `destination`: The name of the column from ParlGov's view_party table to map to (e.g., "left_right" for ideology scores)
 
 ## Usage Examples
 
