@@ -1,14 +1,14 @@
-1921f92622d4739c2630270680baf4ea *DESCRIPTION
+ae8d5571f7d470c0bf86e1b495965354 *DESCRIPTION
 d2816680b4047bffa1b444414aeaade3 *LICENSE
 873248b73d17d80bbab514cb6caa571f *NAMESPACE
-c3aec998e1dc9a446a8cd6e0b7b6253e *NEWS.md
+092cd7e8a7ff6538ab9b608cf23f9df4 *NEWS.md
 82047bb77048eebca5e80718d73edf2d *R/gerda_data_list.R
-cc573ab96b3cf7d778e397b82ffa3852 *R/load_gerda_web.R
+b8224a0df5f80496a666a89f1543c202 *R/load_gerda_web.R
 d1632d233a7a7295dba9688afcd5de03 *R/party_crosswalk.R
 2375a6c49ff38a3372a2bd61ece43909 *R/sysdata.rda
 c4a8e0b8fa22eda77cf2c8052c64163c *README.md
 cbcc27f9c40351887a87afe677fd745f *build/vignette.rds
-0847d5934106b2ee81a339ad3f28e572 *inst/doc/gerda.R
+b3f8f98da018e62da6729e144fbfc599 *inst/doc/gerda.R
 5921bd6e122dbb76fe3c766e893bf2cd *inst/doc/gerda.Rmd
 54d3b0d4c3cf4ffcc339ed78a493cbef *inst/doc/gerda.html
 a62d4767bd0c9681fa63b065ba6de0ea *man/gerda_data_list.Rd
@@ -18,6 +18,6 @@ c9a67e3174dac3309e020dbfdc7b260b *man/load_gerda_web.Rd
 b2a6e2205fba88d58c277ebb68c93575 *tests/testthat.R
 539117dcbe546ab97de77d161f4f9743 *tests/testthat/test-gerda_data_list.R
 d37faf2c352a5af1373aa8fc79ac40e4 *tests/testthat/test-integration.R
-61f248bb7e24bf4e9dddc7495f7e0b07 *tests/testthat/test-load_gerda_web.R
+9a73c969784cb99a3fe053340dfc4db3 *tests/testthat/test-load_gerda_web.R
 ec07007362b89df8edd23f44c0857e32 *tests/testthat/test-party_crosswalk.R
 5921bd6e122dbb76fe3c766e893bf2cd *vignettes/gerda.Rmd

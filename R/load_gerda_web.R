@@ -23,6 +23,18 @@
 #' @export
 
 load_gerda_web <- function(file_name, verbose = FALSE, file_format = "rds") {
+    # Check if file_name ends with .rds or .csv and handle accordingly
+    original_file_name <- file_name
+    if (nchar(file_name) >= 4) {
+        last_4_chars <- substr(file_name, nchar(file_name) - 3, nchar(file_name))
+        if (last_4_chars %in% c(".rds", ".csv")) {
+            file_name <- substr(file_name, 1, nchar(file_name) - 4)
+            message(
+                "File extension (.rds or .csv) not required - adding it is optional."
+            )
+        }
+    }
+
     # Load data dict
     data_dictionary <- data.frame(
         data_name = c(

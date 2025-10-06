@@ -1,6 +1,6 @@
 Package: gerda
 Title: German Election Database (GERDA)
-Version: 0.2.0
+Version: 0.2.1
 Author: Hanno Hilbig [aut, cre] (ORCID:
     <https://orcid.org/0000-0001-5849-9172>)
 Authors@R: 
@@ -28,6 +28,6 @@ BugReports: https://github.com/hhilbig/gerda/issues
 VignetteBuilder: knitr
 Maintainer: Hanno Hilbig <hhilbig@ucdavis.edu>
 NeedsCompilation: no
-Packaged: 2025-08-12 09:43:16 UTC; hanno
+Packaged: 2025-10-06 18:16:21 UTC; hanno
 Repository: CRAN
-Date/Publication: 2025-08-19 12:50:02 UTC
+Date/Publication: 2025-10-06 19:00:02 UTC
