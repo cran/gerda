@@ -430,6 +430,86 @@ level, harmonized):</li>
 </ol>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>federal_cty_harm <span class="ot">&lt;-</span> <span class="fu">load_gerda_web</span>(<span class="st">&quot;federal_cty_harm&quot;</span>, <span class="at">verbose =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 </div>
+<div id="county-level-covariates" class="section level2">
+<h2>County-Level Covariates</h2>
+<p>The <code>gerda</code> package includes county-level socioeconomic
+and demographic covariates from INKAR (Indikatoren und Karten zur Raum-
+und Stadtentwicklung). These covariates can be easily merged with GERDA
+election data to enrich your analyses.</p>
+<div id="quick-start" class="section level3">
+<h3>Quick Start</h3>
+<p>The easiest way to add covariates to your election data is using the
+<code>add_gerda_covariates()</code> function:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co"># Load election data and add covariates</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>merged <span class="ot">&lt;-</span> <span class="fu">load_gerda_web</span>(<span class="st">&quot;federal_cty_harm&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="fu">add_gerda_covariates</span>()</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co"># Your data now includes 20 county-level covariates!</span></span></code></pre></div>
+<p>This function automatically:</p>
+<ul>
+<li>Uses the correct join keys</li>
+<li>Keeps only election years (left join)</li>
+<li>Validates input data</li>
+</ul>
+</div>
+<div id="available-covariates" class="section level3">
+<h3>Available Covariates</h3>
+<p>The covariates dataset includes 20 variables covering:</p>
+<ul>
+<li><strong>Demographics</strong>: Age structure, foreign population,
+gender composition</li>
+<li><strong>Economy</strong>: GDP per capita, sectoral composition,
+enterprise structure</li>
+<li><strong>Labor Market</strong>: Unemployment rates (overall, youth,
+long-term)</li>
+<li><strong>Education</strong>: School completion rates, students,
+apprentices</li>
+<li><strong>Income</strong>: Median income, purchasing power, low-income
+households</li>
+</ul>
+</div>
+<div id="viewing-the-codebook" class="section level3">
+<h3>Viewing the Codebook</h3>
+<p>To see detailed information about each covariate, including units and
+missing data patterns:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Get the codebook</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>codebook <span class="ot">&lt;-</span> <span class="fu">gerda_covariates_codebook</span>()</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="fu">print</span>(codebook)</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co"># Find variables with good coverage</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>codebook <span class="sc">%&gt;%</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  <span class="fu">filter</span>(missing_pct <span class="sc">&lt;</span> <span class="dv">10</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>  <span class="fu">select</span>(variable, label, category)</span></code></pre></div>
+</div>
+<div id="advanced-usage" class="section level3">
+<h3>Advanced Usage</h3>
+<p>For more control, you can access the raw covariates data:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Get raw covariate data</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>covs <span class="ot">&lt;-</span> <span class="fu">gerda_covariates</span>()</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co"># Inspect before merging</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="fu">summary</span>(covs<span class="sc">$</span>unemployment_rate)</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co"># Custom merge</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>elections <span class="ot">&lt;-</span> <span class="fu">load_gerda_web</span>(<span class="st">&quot;federal_cty_harm&quot;</span>)</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>merged <span class="ot">&lt;-</span> elections <span class="sc">%&gt;%</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>  <span class="fu">inner_join</span>(covs, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;county_code&quot;</span> <span class="ot">=</span> <span class="st">&quot;county_code&quot;</span>, <span class="st">&quot;election_year&quot;</span> <span class="ot">=</span> <span class="st">&quot;year&quot;</span>))</span></code></pre></div>
+</div>
+<div id="data-coverage" class="section level3">
+<h3>Data Coverage</h3>
+<ul>
+<li><strong>Counties</strong>: 400 German counties (Kreise)</li>
+<li><strong>Time period</strong>: 1995-2022 (annual data)</li>
+<li><strong>Election coverage</strong>: Elections from 1998 onwards have
+full covariate data</li>
+</ul>
+<p>Note: Some covariates have missing values. Use the codebook to check
+data availability for specific variables before analysis.</p>
+</div>
+</div>
 <div id="party-crosswalk-function" class="section level2">
 <h2>Party Crosswalk Function</h2>
 <p>The <code>party_crosswalk()</code> function provides a mapping
@@ -461,14 +541,14 @@ characteristics, including:</p>
 </div>
 <div id="example" class="section level3">
 <h3>Example</h3>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Map GERDA party names to left-right positions</span></span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>parties <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;cdu&quot;</span>, <span class="st">&quot;spd&quot;</span>, <span class="st">&quot;linke_pds&quot;</span>, <span class="st">&quot;fdp&quot;</span>)</span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>left_right_scores <span class="ot">&lt;-</span> <span class="fu">party_crosswalk</span>(parties, <span class="st">&quot;left_right&quot;</span>)</span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="fu">print</span>(left_right_scores)</span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co"># Map to English party names</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>english_names <span class="ot">&lt;-</span> <span class="fu">party_crosswalk</span>(parties, <span class="st">&quot;party_name_english&quot;</span>)</span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="fu">print</span>(english_names)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Map GERDA party names to left-right positions</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>parties <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;cdu&quot;</span>, <span class="st">&quot;spd&quot;</span>, <span class="st">&quot;linke_pds&quot;</span>, <span class="st">&quot;fdp&quot;</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>left_right_scores <span class="ot">&lt;-</span> <span class="fu">party_crosswalk</span>(parties, <span class="st">&quot;left_right&quot;</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="fu">print</span>(left_right_scores)</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co"># Map to English party names</span></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>english_names <span class="ot">&lt;-</span> <span class="fu">party_crosswalk</span>(parties, <span class="st">&quot;party_name_english&quot;</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="fu">print</span>(english_names)</span></code></pre></div>
 <p>This function is especially useful when you want to:</p>
 <ul>
 <li>Analyze parties along ideological dimensions</li>
