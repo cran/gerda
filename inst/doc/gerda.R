@@ -50,7 +50,7 @@ gerda_data_list()
 # # Custom merge
 # elections <- load_gerda_web("federal_cty_harm")
 # merged <- elections %>%
-#   inner_join(covs, by = c("county_code" = "county_code", "election_year" = "year"))
+#   left_join(covs, by = c("county_code" = "county_code", "election_year" = "year"))
 
 ## ----eval=FALSE---------------------------------------------------------------
 # # Map GERDA party names to left-right positions

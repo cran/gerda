@@ -496,7 +496,7 @@ missing data patterns:</p>
 <span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co"># Custom merge</span></span>
 <span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>elections <span class="ot">&lt;-</span> <span class="fu">load_gerda_web</span>(<span class="st">&quot;federal_cty_harm&quot;</span>)</span>
 <span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>merged <span class="ot">&lt;-</span> elections <span class="sc">%&gt;%</span></span>
-<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>  <span class="fu">inner_join</span>(covs, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;county_code&quot;</span> <span class="ot">=</span> <span class="st">&quot;county_code&quot;</span>, <span class="st">&quot;election_year&quot;</span> <span class="ot">=</span> <span class="st">&quot;year&quot;</span>))</span></code></pre></div>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>  <span class="fu">left_join</span>(covs, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;county_code&quot;</span> <span class="ot">=</span> <span class="st">&quot;county_code&quot;</span>, <span class="st">&quot;election_year&quot;</span> <span class="ot">=</span> <span class="st">&quot;year&quot;</span>))</span></code></pre></div>
 </div>
 <div id="data-coverage" class="section level3">
 <h3>Data Coverage</h3>
