@@ -27,7 +27,7 @@ gerda_data_list()
 # merged <- load_gerda_web("federal_cty_harm") %>%
 #   add_gerda_covariates()
 # 
-# # Your data now includes 20 county-level covariates!
+# # Your data now includes 30 county-level covariates!
 
 ## ----eval=FALSE---------------------------------------------------------------
 # # Get the codebook
@@ -51,6 +51,22 @@ gerda_data_list()
 # elections <- load_gerda_web("federal_cty_harm")
 # merged <- elections %>%
 #   left_join(covs, by = c("county_code" = "county_code", "election_year" = "year"))
+
+## ----eval=FALSE---------------------------------------------------------------
+# library(gerda)
+# 
+# # Add census data to municipal-level elections
+# muni_merged <- load_gerda_web("federal_muni_harm_21") |>
+#   add_gerda_census()
+# 
+# # Also works with county-level data (aggregated from municipalities)
+# county_merged <- load_gerda_web("federal_cty_harm") |>
+#   add_gerda_census()
+
+## ----eval=FALSE---------------------------------------------------------------
+# # Get the census codebook
+# census_cb <- gerda_census_codebook()
+# print(census_cb)
 
 ## ----eval=FALSE---------------------------------------------------------------
 # # Map GERDA party names to left-right positions

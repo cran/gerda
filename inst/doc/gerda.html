@@ -346,21 +346,26 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <p>The <code>gerda</code> package provides functions to access and work
 with GERDA datasets. The German Election Database (GERDA) provides a
 comprehensive dataset of local, state, and federal election results in
-Germany. The data is intended to facilitate research on electoral
-behavior, representation, and political responsiveness at multiple
-levels of government. All datasets include turnout and vote shares for
-all major parties. Moreover, GERDA contains geographically harmonized
-datasets that account for changes in municipal boundaries and mail-in
-voting districts.</p>
+Germany. All datasets include turnout and vote shares for all major
+parties. Moreover, GERDA contains geographically harmonized datasets
+that account for changes in municipal boundaries and mail-in voting
+districts. GERDA covers federal, state (<em>Bundesland</em>), and
+municipal (<em>Kreis</em> and <em>Gemeinde</em>) elections.</p>
+<p>In addition to election results, the package provides county-level
+socioeconomic covariates from INKAR, municipality-level data from the
+German Census 2022, and a party crosswalk that maps GERDA party names to
+standardized ParlGov attributes.</p>
 <p>GERDA was compiled by Vincent Heddesheimer, Florian Sichart, Andreas
-Wiedemann and Hanno Hilbig.</p>
+Wiedemann and Hanno Hilbig. For additional information, see also the
+GERDA website (www.german-elections.com) and the accompanying
+publication: <a href="https://doi.org/10.1038/s41597-025-04811-5">doi.org/10.1038/s41597-025-04811-5</a></p>
 <p>This vignette will introduce you to the main functions of the package
 and demonstrate how to use them.</p>
 </div>
 <div id="available-datasets" class="section level2">
 <h2>Available Datasets</h2>
-<p>To see a list of all available GERDA datasets, you can use the
-<code>gerda_data_list()</code> function:</p>
+<p>To see a list of all available GERDA electoral result datasets, you
+can use the <code>gerda_data_list()</code> function:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">gerda_data_list</span>()</span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; |data_name            |description                                                                          |</span></span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; |:--------------------|:------------------------------------------------------------------------------------|</span></span>
@@ -379,7 +384,9 @@ and demonstrate how to use them.</p>
 <span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; |ags_area_pop_emp     |Crosswalk covariates (area, population, employment) for municipalities (1990-2025).  |</span></span>
 <span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; |cty_area_pop_emp     |Crosswalk covariates (area, population, employment) for counties (1990-2025).        |</span></span></code></pre></div>
 <p>This function displays a formatted table with the names and
-descriptions of all available datasets.</p>
+descriptions of all available datasets. You can use the
+<code>file_name</code> column from this output to specify which dataset
+you want to load using the <code>load_gerda_web()</code> function.</p>
 </div>
 <div id="loading-data" class="section level2">
 <h2>Loading Data</h2>
@@ -392,12 +399,16 @@ it:</p>
 <p>The <code>load_gerda_web()</code> function takes the following
 parameters:</p>
 <ul>
-<li><code>file_name</code>: The name of the dataset to load (as shown in
-the <code>gerda_data_list()</code> output)</li>
+<li><code>file_name</code>: A character string with the name of the
+dataset to load, e.g. <code>&quot;federal_cty_harm&quot;</code> (as shown in the
+<code>gerda_data_list()</code> output). The function supports fuzzy
+matching, so close misspellings will produce a helpful suggestion.</li>
 <li><code>verbose</code>: If set to <code>TRUE</code>, it prints
 messages about the loading process (default is <code>FALSE</code>)</li>
 <li><code>file_format</code>: Specifies the format of the file to load,
-either “rds” or “csv” (default is “rds”)</li>
+either <code>&quot;rds&quot;</code> or <code>&quot;csv&quot;</code> (default is
+<code>&quot;rds&quot;</code>). Both formats return the same tibble, so this choice
+only affects download size and speed.</li>
 </ul>
 </div>
 <div id="example-workflow" class="section level2">
@@ -435,7 +446,9 @@ level, harmonized):</li>
 <p>The <code>gerda</code> package includes county-level socioeconomic
 and demographic covariates from INKAR (Indikatoren und Karten zur Raum-
 und Stadtentwicklung). These covariates can be easily merged with GERDA
-election data to enrich your analyses.</p>
+election data to enrich your analyses. INKAR data is available from 1995
+to 2022, so covariates can be matched to federal elections from 1998
+onwards (earlier elections fall outside the INKAR coverage window).</p>
 <div id="quick-start" class="section level3">
 <h3>Quick Start</h3>
 <p>The easiest way to add covariates to your election data is using the
@@ -446,17 +459,23 @@ election data to enrich your analyses.</p>
 <span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>merged <span class="ot">&lt;-</span> <span class="fu">load_gerda_web</span>(<span class="st">&quot;federal_cty_harm&quot;</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="fu">add_gerda_covariates</span>()</span>
 <span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co"># Your data now includes 20 county-level covariates!</span></span></code></pre></div>
-<p>This function automatically:</p>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co"># Your data now includes 30 county-level covariates!</span></span></code></pre></div>
+<p>Under the hood, <code>add_gerda_covariates()</code> merges on county
+code and election year. It automatically:</p>
 <ul>
-<li>Uses the correct join keys</li>
-<li>Keeps only election years (left join)</li>
-<li>Validates input data</li>
+<li>Detects whether the input is county-level or municipal-level data
+(and extracts county codes from municipal AGS codes if needed)</li>
+<li>Performs a left join, so all election rows are kept and covariates
+are added where available</li>
+<li>Validates that the required columns (<code>county_code</code> or
+<code>ags</code>, and <code>election_year</code>) are present</li>
 </ul>
 </div>
 <div id="available-covariates" class="section level3">
 <h3>Available Covariates</h3>
-<p>The covariates dataset includes 20 variables covering:</p>
+<p>The covariates dataset includes 30 variables across 10 categories
+(for the full list of variable names, units, and descriptions, see
+<code>gerda_covariates_codebook()</code>):</p>
 <ul>
 <li><strong>Demographics</strong>: Age structure, foreign population,
 gender composition</li>
@@ -466,8 +485,16 @@ enterprise structure</li>
 long-term)</li>
 <li><strong>Education</strong>: School completion rates, students,
 apprentices</li>
-<li><strong>Income</strong>: Median income, purchasing power, low-income
+<li><strong>Income</strong>: Purchasing power, low-income
 households</li>
+<li><strong>Healthcare</strong>: Physician density, hospital beds, GP
+density</li>
+<li><strong>Childcare</strong>: Coverage rates for under-3 and 3-6 age
+groups</li>
+<li><strong>Housing</strong>: Building permits, rent levels, living
+space</li>
+<li><strong>Transport</strong>: Cars per capita</li>
+<li><strong>Public Finances</strong>: Municipal debt, tax revenue</li>
 </ul>
 </div>
 <div id="viewing-the-codebook" class="section level3">
@@ -504,10 +531,69 @@ missing data patterns:</p>
 <li><strong>Counties</strong>: 400 German counties (Kreise)</li>
 <li><strong>Time period</strong>: 1995-2022 (annual data)</li>
 <li><strong>Election coverage</strong>: Elections from 1998 onwards have
-full covariate data</li>
+covariate data</li>
 </ul>
-<p>Note: Some covariates have missing values. Use the codebook to check
-data availability for specific variables before analysis.</p>
+<p>Coverage varies by variable: core indicators (demographics, economy,
+labor market) are available for all 7 federal election years
+(1998-2021). Newer INKAR indicators (e.g., childcare, some healthcare
+variables) are available for 2-3 recent elections only. Consult the
+codebook’s <code>missing_pct</code> column to check per-variable
+availability before analysis.</p>
+</div>
+</div>
+<div id="census-2022-data" class="section level2">
+<h2>Census 2022 Data</h2>
+<p>The <code>gerda</code> package includes municipality-level data from
+the German Census 2022 (Zensus 2022). This cross-sectional snapshot
+covers approximately 10,800 municipalities and can be merged with any
+GERDA election dataset.</p>
+<p>The main advantage of this covariate data is that it is observed at
+the municipal level (unlike the county-level INKAR data). This allows
+for more fine-grained analyses of local election outcomes. However, the
+census is a single time point (2022), so it does not vary across
+election years. This means that the resulting merged dataset will have
+time-invariant covariates, i.e. each municipality receives the same
+census values for all election years. Users should not conduct analyses
+that rely on over-time variation in these covariates.</p>
+<div id="quick-start-1" class="section level3">
+<h3>Quick Start</h3>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">library</span>(gerda)</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co"># Add census data to municipal-level elections</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>muni_merged <span class="ot">&lt;-</span> <span class="fu">load_gerda_web</span>(<span class="st">&quot;federal_muni_harm_21&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>  <span class="fu">add_gerda_census</span>()</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co"># Also works with county-level data (aggregated from municipalities)</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>county_merged <span class="ot">&lt;-</span> <span class="fu">load_gerda_web</span>(<span class="st">&quot;federal_cty_harm&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>  <span class="fu">add_gerda_census</span>()</span></code></pre></div>
+</div>
+<div id="available-indicators" class="section level3">
+<h3>Available Indicators</h3>
+<p>The census data includes 14 indicators across four categories:</p>
+<ul>
+<li><strong>Demographics</strong>: Population, age structure (under 18,
+18-29, 30-49, 50-64, 65+)</li>
+<li><strong>Migration</strong>: Migration background share, foreign
+nationals share</li>
+<li><strong>Households</strong>: Average household size</li>
+<li><strong>Housing</strong>: Total dwellings, vacancy rate, ownership
+rate, average rent per m², single-family home share</li>
+</ul>
+<p>Since the census is a 2022 snapshot, the same values are attached to
+all election years (see also the note above).</p>
+</div>
+<div id="viewing-the-codebook-1" class="section level3">
+<h3>Viewing the Codebook</h3>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># Get the census codebook</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>census_cb <span class="ot">&lt;-</span> <span class="fu">gerda_census_codebook</span>()</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="fu">print</span>(census_cb)</span></code></pre></div>
+</div>
+<div id="data-coverage-1" class="section level3">
+<h3>Data Coverage</h3>
+<p>Most census variables have &gt;95% municipality coverage.
+<code>avg_household_size_census22</code> has approximately 12.5% missing
+values because Destatis suppresses data for small municipalities under
+its disclosure rules.</p>
 </div>
 </div>
 <div id="party-crosswalk-function" class="section level2">
@@ -541,14 +627,14 @@ characteristics, including:</p>
 </div>
 <div id="example" class="section level3">
 <h3>Example</h3>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Map GERDA party names to left-right positions</span></span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>parties <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;cdu&quot;</span>, <span class="st">&quot;spd&quot;</span>, <span class="st">&quot;linke_pds&quot;</span>, <span class="st">&quot;fdp&quot;</span>)</span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>left_right_scores <span class="ot">&lt;-</span> <span class="fu">party_crosswalk</span>(parties, <span class="st">&quot;left_right&quot;</span>)</span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="fu">print</span>(left_right_scores)</span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a></span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co"># Map to English party names</span></span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>english_names <span class="ot">&lt;-</span> <span class="fu">party_crosswalk</span>(parties, <span class="st">&quot;party_name_english&quot;</span>)</span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="fu">print</span>(english_names)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># Map GERDA party names to left-right positions</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>parties <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;cdu&quot;</span>, <span class="st">&quot;spd&quot;</span>, <span class="st">&quot;linke_pds&quot;</span>, <span class="st">&quot;fdp&quot;</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>left_right_scores <span class="ot">&lt;-</span> <span class="fu">party_crosswalk</span>(parties, <span class="st">&quot;left_right&quot;</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="fu">print</span>(left_right_scores)</span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co"># Map to English party names</span></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>english_names <span class="ot">&lt;-</span> <span class="fu">party_crosswalk</span>(parties, <span class="st">&quot;party_name_english&quot;</span>)</span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="fu">print</span>(english_names)</span></code></pre></div>
 <p>This function is especially useful when you want to:</p>
 <ul>
 <li>Analyze parties along ideological dimensions</li>
