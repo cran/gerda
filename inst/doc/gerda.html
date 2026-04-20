@@ -344,13 +344,15 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div id="overview" class="section level2">
 <h2>Overview</h2>
 <p>The <code>gerda</code> package provides functions to access and work
-with GERDA datasets. The German Election Database (GERDA) provides a
-comprehensive dataset of local, state, and federal election results in
-Germany. All datasets include turnout and vote shares for all major
-parties. Moreover, GERDA contains geographically harmonized datasets
+with GERDA datasets. The German Election Database (GERDA) provides data
+on German elections spanning federal elections (since 1953 at the county
+level, 1980 at the municipal level), state (<em>Landtag</em>) elections,
+local (<em>Kommunal</em>) elections, mayoral (<em>Bürgermeister</em>)
+elections, European Parliament elections, and county (<em>Kreistag</em>)
+elections. All election datasets include turnout and vote shares for all
+major parties. GERDA also supplies geographically harmonized datasets
 that account for changes in municipal boundaries and mail-in voting
-districts. GERDA covers federal, state (<em>Bundesland</em>), and
-municipal (<em>Kreis</em> and <em>Gemeinde</em>) elections.</p>
+districts.</p>
 <p>In addition to election results, the package provides county-level
 socioeconomic covariates from INKAR, municipality-level data from the
 German Census 2022, and a party crosswalk that maps GERDA party names to
@@ -367,22 +369,45 @@ and demonstrate how to use them.</p>
 <p>To see a list of all available GERDA electoral result datasets, you
 can use the <code>gerda_data_list()</code> function:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">gerda_data_list</span>()</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; |data_name            |description                                                                          |</span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; |:--------------------|:------------------------------------------------------------------------------------|</span></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; |municipal_unharm     |Local elections at the municipal level (1990-2020, unharmonized).                    |</span></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; |municipal_harm       |Local elections at the municipal level (1990-2020, harmonized).                      |</span></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; |state_unharm         |State elections at the municipal level (2006-2019, unharmonized).                    |</span></span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; |state_harm           |State elections at the municipal level (2006-2019, harmonized).                      |</span></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; |federal_muni_raw     |Federal elections at the municipal level (1980-2025, raw data).                      |</span></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; |federal_muni_unharm  |Federal elections at the municipal level (1980-2025, unharmonized).                  |</span></span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; |federal_muni_harm_21 |Federal elections at the municipal level (1990-2025, harmonized to 2021 boundaries). |</span></span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; |federal_muni_harm_25 |Federal elections at the municipal level (1990-2025, harmonized to 2025 boundaries). |</span></span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; |federal_cty_unharm   |Federal elections at the county level (1953-2021, unharmonized).                     |</span></span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; |federal_cty_harm     |Federal elections at the county level (1990-2021, harmonized).                       |</span></span>
-<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt; |ags_crosswalks       |Crosswalks for municipalities (1990-2025).                                           |</span></span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt; |cty_crosswalks       |Crosswalks for counties (1990-2025).                                                 |</span></span>
-<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; |ags_area_pop_emp     |Crosswalk covariates (area, population, employment) for municipalities (1990-2025).  |</span></span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; |cty_area_pop_emp     |Crosswalk covariates (area, population, employment) for counties (1990-2025).        |</span></span></code></pre></div>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; municipal_unharm                 Local elections at the municipal level (1990-2020, unharmonized).</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; municipal_harm                   Local elections at the municipal level (1990-2020, harmonized).</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; municipal_harm_25                Local elections at the municipal level, harmonized to 2025 boundaries.</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; state_unharm                     State elections at the municipal level (2006-2019, unharmonized).</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; state_harm                       State elections at the municipal level (2006-2019, harmonized).</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; state_harm_21                    State elections at the municipal level, harmonized to 2021 boundaries.</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; state_harm_23                    State elections at the municipal level, harmonized to 2023 boundaries.</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; state_harm_25                    State elections at the municipal level, harmonized to 2025 boundaries.</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; federal_muni_raw                 Federal elections at the municipal level (1980-2025, raw data).</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; federal_muni_unharm              Federal elections at the municipal level (1980-2025, unharmonized).</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; federal_muni_harm_21             Federal elections at the municipal level (1990-2025, harmonized to 2021 boundaries).</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; federal_muni_harm_25             Federal elections at the municipal level (1990-2025, harmonized to 2025 boundaries).</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt; federal_cty_unharm               Federal elections at the county level (1953-2021, unharmonized).</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt; federal_cty_harm                 Federal elections at the county level (1990-2021, harmonized).</span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; county_elec_unharm               County (Kreistag) elections at the municipal level, unharmonized.</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; county_elec_harm_21              County (Kreistag) elections, harmonized to 2021 boundaries.</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt; county_elec_harm_21_cty          County (Kreistag) elections aggregated to county level, harmonized to 2021 boundaries.</span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt; county_elec_harm_21_muni         County (Kreistag) elections at the municipal level, harmonized to 2021 boundaries.</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt; european_muni_unharm             European Parliament elections at the municipal level, unharmonized.</span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt; european_muni_harm               European Parliament elections at the municipal level, harmonized.</span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt; mayoral_unharm                   Mayoral election results at the municipal level, unharmonized.</span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt; mayoral_harm                     Mayoral election results at the municipal level, harmonized.</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; mayoral_candidates               Mayoral candidates (person-level).</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt; mayor_panel                      Mayor panel (person-level, one row per mayor-term).</span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; mayor_panel_harm                 Mayor panel (person-level, harmonized to current boundaries).</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt; mayor_panel_annual               Mayor panel at annual frequency (one row per municipality-year).</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt; mayor_panel_annual_harm          Mayor panel at annual frequency, harmonized to current boundaries.</span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt; ags_crosswalks                   Crosswalks for municipalities (1990-2025).</span></span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#&gt; cty_crosswalks                   Crosswalks for counties (1990-2025).</span></span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a><span class="co">#&gt; ags_1990_to_2023_crosswalk       Municipality crosswalk: 1990 boundaries to 2023 boundaries.</span></span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="co">#&gt; ags_1990_to_2025_crosswalk       Municipality crosswalk: 1990 boundaries to 2025 boundaries.</span></span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2021_to_2023       Municipality crosswalk: AGS 2021 to AGS 2023 (targeted).</span></span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2021_2022_to_2023  Municipality crosswalk: AGS 2021 and 2022 to AGS 2023 (targeted).</span></span>
+<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2023_to_2025       Municipality crosswalk: AGS 2023 to AGS 2025 (targeted; RDS only).</span></span>
+<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2023_24_to_2025    Municipality crosswalk: AGS 2023 and 2024 to AGS 2025 (targeted; RDS only).</span></span>
+<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2024_to_2025       Municipality crosswalk: AGS 2024 to AGS 2025 (targeted; RDS only).</span></span>
+<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a><span class="co">#&gt; ags_area_pop_emp                 Crosswalk covariates (area, population, employment) for municipalities (1990-2025).</span></span>
+<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a><span class="co">#&gt; ags_area_pop_emp_2023            Crosswalk covariates (area, population, employment) for municipalities, harmonized to 2023 boundaries.</span></span>
+<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a><span class="co">#&gt; cty_area_pop_emp                 Crosswalk covariates (area, population, employment) for counties (1990-2025).</span></span></code></pre></div>
 <p>This function displays a formatted table with the names and
 descriptions of all available datasets. You can use the
 <code>file_name</code> column from this output to specify which dataset
@@ -419,27 +444,149 @@ package:</p>
 <li>List available datasets:</li>
 </ol>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">gerda_data_list</span>()</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; |data_name            |description                                                                          |</span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; |:--------------------|:------------------------------------------------------------------------------------|</span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; |municipal_unharm     |Local elections at the municipal level (1990-2020, unharmonized).                    |</span></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; |municipal_harm       |Local elections at the municipal level (1990-2020, harmonized).                      |</span></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; |state_unharm         |State elections at the municipal level (2006-2019, unharmonized).                    |</span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; |state_harm           |State elections at the municipal level (2006-2019, harmonized).                      |</span></span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; |federal_muni_raw     |Federal elections at the municipal level (1980-2025, raw data).                      |</span></span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; |federal_muni_unharm  |Federal elections at the municipal level (1980-2025, unharmonized).                  |</span></span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt; |federal_muni_harm_21 |Federal elections at the municipal level (1990-2025, harmonized to 2021 boundaries). |</span></span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt; |federal_muni_harm_25 |Federal elections at the municipal level (1990-2025, harmonized to 2025 boundaries). |</span></span>
-<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt; |federal_cty_unharm   |Federal elections at the county level (1953-2021, unharmonized).                     |</span></span>
-<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt; |federal_cty_harm     |Federal elections at the county level (1990-2021, harmonized).                       |</span></span>
-<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt; |ags_crosswalks       |Crosswalks for municipalities (1990-2025).                                           |</span></span>
-<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt; |cty_crosswalks       |Crosswalks for counties (1990-2025).                                                 |</span></span>
-<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt; |ags_area_pop_emp     |Crosswalk covariates (area, population, employment) for municipalities (1990-2025).  |</span></span>
-<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt; |cty_area_pop_emp     |Crosswalk covariates (area, population, employment) for counties (1990-2025).        |</span></span></code></pre></div>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; municipal_unharm                 Local elections at the municipal level (1990-2020, unharmonized).</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; municipal_harm                   Local elections at the municipal level (1990-2020, harmonized).</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; municipal_harm_25                Local elections at the municipal level, harmonized to 2025 boundaries.</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; state_unharm                     State elections at the municipal level (2006-2019, unharmonized).</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; state_harm                       State elections at the municipal level (2006-2019, harmonized).</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; state_harm_21                    State elections at the municipal level, harmonized to 2021 boundaries.</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; state_harm_23                    State elections at the municipal level, harmonized to 2023 boundaries.</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; state_harm_25                    State elections at the municipal level, harmonized to 2025 boundaries.</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt; federal_muni_raw                 Federal elections at the municipal level (1980-2025, raw data).</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt; federal_muni_unharm              Federal elections at the municipal level (1980-2025, unharmonized).</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt; federal_muni_harm_21             Federal elections at the municipal level (1990-2025, harmonized to 2021 boundaries).</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt; federal_muni_harm_25             Federal elections at the municipal level (1990-2025, harmonized to 2025 boundaries).</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt; federal_cty_unharm               Federal elections at the county level (1953-2021, unharmonized).</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt; federal_cty_harm                 Federal elections at the county level (1990-2021, harmonized).</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt; county_elec_unharm               County (Kreistag) elections at the municipal level, unharmonized.</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt; county_elec_harm_21              County (Kreistag) elections, harmonized to 2021 boundaries.</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co">#&gt; county_elec_harm_21_cty          County (Kreistag) elections aggregated to county level, harmonized to 2021 boundaries.</span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="co">#&gt; county_elec_harm_21_muni         County (Kreistag) elections at the municipal level, harmonized to 2021 boundaries.</span></span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="co">#&gt; european_muni_unharm             European Parliament elections at the municipal level, unharmonized.</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="co">#&gt; european_muni_harm               European Parliament elections at the municipal level, harmonized.</span></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a><span class="co">#&gt; mayoral_unharm                   Mayoral election results at the municipal level, unharmonized.</span></span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a><span class="co">#&gt; mayoral_harm                     Mayoral election results at the municipal level, harmonized.</span></span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a><span class="co">#&gt; mayoral_candidates               Mayoral candidates (person-level).</span></span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a><span class="co">#&gt; mayor_panel                      Mayor panel (person-level, one row per mayor-term).</span></span>
+<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a><span class="co">#&gt; mayor_panel_harm                 Mayor panel (person-level, harmonized to current boundaries).</span></span>
+<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a><span class="co">#&gt; mayor_panel_annual               Mayor panel at annual frequency (one row per municipality-year).</span></span>
+<span id="cb4-28"><a href="#cb4-28" tabindex="-1"></a><span class="co">#&gt; mayor_panel_annual_harm          Mayor panel at annual frequency, harmonized to current boundaries.</span></span>
+<span id="cb4-29"><a href="#cb4-29" tabindex="-1"></a><span class="co">#&gt; ags_crosswalks                   Crosswalks for municipalities (1990-2025).</span></span>
+<span id="cb4-30"><a href="#cb4-30" tabindex="-1"></a><span class="co">#&gt; cty_crosswalks                   Crosswalks for counties (1990-2025).</span></span>
+<span id="cb4-31"><a href="#cb4-31" tabindex="-1"></a><span class="co">#&gt; ags_1990_to_2023_crosswalk       Municipality crosswalk: 1990 boundaries to 2023 boundaries.</span></span>
+<span id="cb4-32"><a href="#cb4-32" tabindex="-1"></a><span class="co">#&gt; ags_1990_to_2025_crosswalk       Municipality crosswalk: 1990 boundaries to 2025 boundaries.</span></span>
+<span id="cb4-33"><a href="#cb4-33" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2021_to_2023       Municipality crosswalk: AGS 2021 to AGS 2023 (targeted).</span></span>
+<span id="cb4-34"><a href="#cb4-34" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2021_2022_to_2023  Municipality crosswalk: AGS 2021 and 2022 to AGS 2023 (targeted).</span></span>
+<span id="cb4-35"><a href="#cb4-35" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2023_to_2025       Municipality crosswalk: AGS 2023 to AGS 2025 (targeted; RDS only).</span></span>
+<span id="cb4-36"><a href="#cb4-36" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2023_24_to_2025    Municipality crosswalk: AGS 2023 and 2024 to AGS 2025 (targeted; RDS only).</span></span>
+<span id="cb4-37"><a href="#cb4-37" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2024_to_2025       Municipality crosswalk: AGS 2024 to AGS 2025 (targeted; RDS only).</span></span>
+<span id="cb4-38"><a href="#cb4-38" tabindex="-1"></a><span class="co">#&gt; ags_area_pop_emp                 Crosswalk covariates (area, population, employment) for municipalities (1990-2025).</span></span>
+<span id="cb4-39"><a href="#cb4-39" tabindex="-1"></a><span class="co">#&gt; ags_area_pop_emp_2023            Crosswalk covariates (area, population, employment) for municipalities, harmonized to 2023 boundaries.</span></span>
+<span id="cb4-40"><a href="#cb4-40" tabindex="-1"></a><span class="co">#&gt; cty_area_pop_emp                 Crosswalk covariates (area, population, employment) for counties (1990-2025).</span></span></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
 <li>Load a dataset (in this case, the federal elections at the county
 level, harmonized):</li>
 </ol>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>federal_cty_harm <span class="ot">&lt;-</span> <span class="fu">load_gerda_web</span>(<span class="st">&quot;federal_cty_harm&quot;</span>, <span class="at">verbose =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+</div>
+<div id="joining-gerda-datasets" class="section level2">
+<h2>Joining GERDA Datasets</h2>
+<p>If you are using <code>add_gerda_covariates()</code> or
+<code>add_gerda_census()</code>, you can skip this section: the helpers
+detect the level of your data and use the correct join keys
+automatically. If you are writing a manual <code>left_join()</code> or
+merging against other sources, the table below shows which identifier
+and time columns each family carries.</p>
+<table>
+<colgroup>
+<col width="55%" />
+<col width="28%" />
+<col width="16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dataset family</th>
+<th>Geographic id</th>
+<th>Time column</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>municipal_*</code>, <code>state_*</code>,
+<code>federal_muni_*</code>, <code>european_muni_*</code>,
+<code>mayoral_*</code></td>
+<td><code>ags</code> (8-digit municipality)</td>
+<td><code>election_year</code> (+ <code>election_date</code> where
+available)</td>
+</tr>
+<tr class="even">
+<td><code>federal_cty_harm</code></td>
+<td><code>county_code</code> (5-digit county)</td>
+<td><code>election_year</code></td>
+</tr>
+<tr class="odd">
+<td><code>federal_cty_unharm</code></td>
+<td><code>county_code</code> + <code>ags</code> alias (see
+Deprecations)</td>
+<td><code>election_year</code> + <code>year</code> alias</td>
+</tr>
+<tr class="even">
+<td><code>county_elec_*</code> (with <code>_cty</code> suffix)</td>
+<td><code>county_code</code> (5-digit county)</td>
+<td><code>election_year</code></td>
+</tr>
+<tr class="odd">
+<td><code>county_elec_*</code> (without <code>_cty</code> suffix)</td>
+<td><code>ags</code> (8-digit municipality)</td>
+<td><code>election_year</code></td>
+</tr>
+<tr class="even">
+<td><code>mayor_panel</code> / <code>mayor_panel_harm</code></td>
+<td><code>ags</code> + <code>person_id</code></td>
+<td><code>election_date</code></td>
+</tr>
+<tr class="odd">
+<td><code>mayor_panel_annual</code> /
+<code>mayor_panel_annual_harm</code></td>
+<td><code>ags</code> + <code>person_id</code></td>
+<td><code>year</code></td>
+</tr>
+<tr class="even">
+<td><code>gerda_covariates()</code> (INKAR, county-level)</td>
+<td><code>county_code</code> (5-digit county)</td>
+<td><code>year</code> (not <code>election_year</code>)</td>
+</tr>
+<tr class="odd">
+<td><code>gerda_census()</code> (Zensus 2022, municipality-level)</td>
+<td><code>ags</code> (8-digit municipality)</td>
+<td><em>time-invariant (2022)</em></td>
+</tr>
+<tr class="even">
+<td><code>ags_crosswalks</code>,
+<code>ags_1990_to_2023_crosswalk</code>,
+<code>ags_1990_to_2025_crosswalk</code>,
+<code>crosswalk_ags_*</code></td>
+<td>Pair of AGS codes at source and target vintages</td>
+<td>Vintage is encoded in column names</td>
+</tr>
+<tr class="odd">
+<td><code>cty_crosswalks</code></td>
+<td>Pair of 5-digit county codes at source and target</td>
+<td>Vintage is in column names</td>
+</tr>
+</tbody>
+</table>
+<p>Two things to watch for when joining manually:</p>
+<ul>
+<li><code>gerda_covariates()</code> uses <code>year</code>, not
+<code>election_year</code>. If you merge it directly into federal
+election data, you need a rename:
+<code>by = c(&quot;county_code&quot; = &quot;county_code&quot;, &quot;election_year&quot; = &quot;year&quot;)</code>.</li>
+<li>On municipal-level files, the <code>county</code> column is a county
+name or partial code, not the 5-digit AGS-based county code. Use
+<code>substr(ags, 1, 5)</code> to extract the county key when you want
+to join against county-level data.</li>
+</ul>
 </div>
 <div id="county-level-covariates" class="section level2">
 <h2>County-Level Covariates</h2>
