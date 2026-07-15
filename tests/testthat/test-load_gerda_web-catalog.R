@@ -15,6 +15,10 @@ catalog_datasets <- list(
         "state_harm_23",
         "state_harm_25"
     ),
+    state_wkr = c(
+        "ltw_wkr_unharm",
+        "ltw_wkr_unharm_long"
+    ),
     federal_muni = c(
         "federal_muni_raw",
         "federal_muni_unharm",
@@ -25,9 +29,13 @@ catalog_datasets <- list(
         "federal_cty_unharm",
         "federal_cty_harm"
     ),
+    federal_wkr = c(
+        "federal_wkr_unharm",
+        "federal_wkr_unharm_long",
+        "federal_wkr_2021_on_2025"
+    ),
     county = c(
         "county_elec_unharm",
-        "county_elec_harm_21",
         "county_elec_harm_21_cty",
         "county_elec_harm_21_muni"
     ),
@@ -44,9 +52,14 @@ catalog_datasets <- list(
         "mayor_panel_annual",
         "mayor_panel_annual_harm"
     ),
+    landrat = c(
+        "landrat_unharm",
+        "landrat_candidates"
+    ),
     crosswalks = c(
         "ags_crosswalks",
         "cty_crosswalks",
+        "wkr_2021_to_2025_crosswalk",
         "ags_1990_to_2023_crosswalk",
         "ags_1990_to_2025_crosswalk",
         "crosswalk_ags_2021_to_2023",
@@ -77,11 +90,16 @@ for (family in names(catalog_datasets)) {
             # Skip on CRAN to avoid flaky network checks and long runtimes.
             skip_on_cran()
             for (ds in dsets) {
-                expect_silent({
-                    suppressWarnings(suppressMessages(
-                        load_gerda_web(ds, verbose = FALSE)
-                    ))
-                })
+                # Assert the download actually returns data, not just that the
+                # call is silent: an entry whose file 404s upstream returns NULL
+                # (warning suppressed), so a lenient expect_silent() would miss
+                # broken/orphaned catalog entries. Retries absorb transient
+                # network flakiness; a genuine 404 still fails here.
+                res <- suppressWarnings(suppressMessages(
+                    load_gerda_web(ds, verbose = FALSE)
+                ))
+                expect_s3_class(res, "data.frame")
+                expect_gt(nrow(res), 0)
             }
         })
     })
@@ -107,6 +125,21 @@ test_that("RDS-only datasets can be requested with file_format='rds'", {
                 load_gerda_web(ds, file_format = "rds", verbose = FALSE)
             ))
         })
+    }
+})
+
+test_that("requesting csv for an RDS-only dataset fails informatively", {
+    # Fails on the format guard before any download, so this runs offline.
+    for (ds in rds_only) {
+        expect_warning(
+            res <- load_gerda_web(ds, file_format = "csv"),
+            "not available in 'csv' format"
+        )
+        expect_null(res)
+        expect_error(
+            load_gerda_web(ds, file_format = "csv", on_error = "stop"),
+            "not available in 'csv' format"
+        )
     }
 })
 
