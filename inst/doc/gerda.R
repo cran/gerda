@@ -12,22 +12,44 @@ gerda_data_list()
 
 ## ----eval=FALSE---------------------------------------------------------------
 # # Load the municipal harmonized dataset
-# municipal_harm_data <- load_gerda_web("municipal_harm", verbose = TRUE, file_format = "rds")
+# municipal_harm_data <- load_gerda_web(
+#   "municipal_harm",
+#   verbose = TRUE,
+#   file_format = "rds",
+#   on_error = "stop",
+#   cache = TRUE
+# )
+
+## -----------------------------------------------------------------------------
+catalog <- gerda_data_list(print_table = FALSE)
+subset(catalog,
+       election_type == "federal" &
+       geographic_level == "municipality" &
+       boundary == "2025")
 
 ## -----------------------------------------------------------------------------
 gerda_data_list()
 
 ## ----eval=FALSE---------------------------------------------------------------
-# federal_cty_harm <- load_gerda_web("federal_cty_harm", verbose = TRUE)
+# federal_cty_harm <- load_gerda_web(
+#   "federal_cty_harm",
+#   verbose = TRUE,
+#   on_error = "stop",
+#   cache = TRUE
+# )
 
 ## ----eval=FALSE---------------------------------------------------------------
 # library(dplyr)
 # 
 # # Load election data and add covariates
-# merged <- load_gerda_web("federal_cty_harm") %>%
-#   add_gerda_covariates()
+# merged <- load_gerda_web(
+#   "federal_cty_harm",
+#   on_error = "stop",
+#   cache = TRUE
+# ) %>%
+#   add_gerda_covariates(unmatched = "error")
 # 
-# # Your data now includes 30 county-level covariates!
+# join_report <- gerda_join_diagnostics(merged)
 
 ## ----eval=FALSE---------------------------------------------------------------
 # # Get the codebook
@@ -56,12 +78,22 @@ gerda_data_list()
 # library(gerda)
 # 
 # # Add census data to municipal-level elections
-# muni_merged <- load_gerda_web("federal_muni_harm_21") |>
-#   add_gerda_census()
+# muni_merged <- load_gerda_web(
+#   "federal_muni_harm_21",
+#   on_error = "stop",
+#   cache = TRUE
+# ) |>
+#   add_gerda_census(unmatched = "error")
 # 
 # # Also works with county-level data (aggregated from municipalities)
-# county_merged <- load_gerda_web("federal_cty_harm") |>
-#   add_gerda_census()
+# county_merged <- load_gerda_web(
+#   "federal_cty_harm",
+#   on_error = "stop",
+#   cache = TRUE
+# ) |>
+#   add_gerda_census(unmatched = "error")
+# 
+# gerda_join_diagnostics(muni_merged)
 
 ## ----eval=FALSE---------------------------------------------------------------
 # # Get the census codebook

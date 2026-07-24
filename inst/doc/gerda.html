@@ -345,14 +345,14 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h2>Overview</h2>
 <p>The <code>gerda</code> package provides functions to access and work
 with GERDA datasets. The German Election Database (GERDA) provides data
-on German elections spanning federal elections (since 1953 at the county
-level, 1980 at the municipal level), state (<em>Landtag</em>) elections,
-local (<em>Kommunal</em>) elections, mayoral (<em>Bürgermeister</em>)
-elections, European Parliament elections, and county (<em>Kreistag</em>)
-elections. All election datasets include turnout and vote shares for all
-major parties. GERDA also supplies geographically harmonized datasets
-that account for changes in municipal boundaries and mail-in voting
-districts.</p>
+on federal elections, state (<em>Landtag</em>) elections, local
+(<em>Kommunal</em>) elections, mayoral (<em>Bürgermeister</em>)
+elections, Landrat elections, European Parliament elections, and county
+(<em>Kreistag</em>) elections. Federal data include municipality-,
+county-, and constituency-level files; state data include municipality-
+and constituency-level files. GERDA also supplies geographically
+harmonized datasets that account for changes in municipal boundaries and
+mail-in voting districts.</p>
 <p>In addition to election results, the package provides county-level
 socioeconomic covariates from INKAR, municipality-level data from the
 German Census 2022, and a party crosswalk that maps GERDA party names to
@@ -363,15 +363,19 @@ GERDA website (www.german-elections.com) and the accompanying
 publication: <a href="https://doi.org/10.1038/s41597-025-04811-5">doi.org/10.1038/s41597-025-04811-5</a></p>
 <p>This vignette will introduce you to the main functions of the package
 and demonstrate how to use them.</p>
+<p>For a stricter workflow intended for unattended coding agents,
+including snapshot provenance, key audits, guarded joins, and
+machine-readable join diagnostics, see
+<code>vignette(&quot;agent-workflow&quot;)</code>.</p>
 </div>
 <div id="available-datasets" class="section level2">
 <h2>Available Datasets</h2>
 <p>To see a list of all available GERDA electoral result datasets, you
 can use the <code>gerda_data_list()</code> function:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">gerda_data_list</span>()</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; municipal_unharm                 Local elections at the municipal level (1990-2020, unharmonized).</span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; municipal_harm                   Local elections at the municipal level (1990-2020, harmonized).</span></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; municipal_harm_25                Local elections at the municipal level, harmonized to 2025 boundaries.</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; municipal_unharm                 Local elections at the municipal level (1984-2026, unharmonized; includes council seat counts (seats_*) where the state source reports them).</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; municipal_harm                   Local elections at the municipal level (1990-2026, harmonized).</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; municipal_harm_25                Local elections at the municipal level (1990-2026, harmonized to 2025 boundaries).</span></span>
 <span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; state_unharm                     State elections at the municipal level (2006-2019, unharmonized).</span></span>
 <span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; state_harm                       State elections at the municipal level (2006-2019, harmonized).</span></span>
 <span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; state_harm_21                    State elections at the municipal level, harmonized to 2021 boundaries.</span></span>
@@ -391,34 +395,36 @@ can use the <code>gerda_data_list()</code> function:</p>
 <span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt; county_elec_unharm               County (Kreistag) elections at the municipal level, unharmonized.</span></span>
 <span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt; county_elec_harm_21_cty          County (Kreistag) elections aggregated to county level, harmonized to 2021 boundaries.</span></span>
 <span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt; county_elec_harm_21_muni         County (Kreistag) elections at the municipal level, harmonized to 2021 boundaries.</span></span>
-<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; european_muni_unharm             European Parliament elections at the municipal level, unharmonized.</span></span>
-<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt; european_muni_harm               European Parliament elections at the municipal level, harmonized.</span></span>
-<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; mayoral_unharm                   Mayoral election results at the municipal level, unharmonized.</span></span>
-<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt; mayoral_harm                     Mayoral election results at the municipal level, harmonized.</span></span>
-<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt; mayoral_candidates               Mayoral candidates (person-level).</span></span>
-<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt; mayor_panel                      Mayor panel (person-level, one row per mayor-term).</span></span>
-<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#&gt; mayor_panel_harm                 Mayor panel (person-level, harmonized to current boundaries).</span></span>
-<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a><span class="co">#&gt; mayor_panel_annual               Mayor panel at annual frequency (one row per municipality-year).</span></span>
-<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="co">#&gt; mayor_panel_annual_harm          Mayor panel at annual frequency, harmonized to current boundaries.</span></span>
-<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co">#&gt; landrat_unharm                   Landrat (county executive) elections at the county level (1945-2026, unharmonized).</span></span>
-<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt; landrat_candidates               Landrat candidates (person-level, includes Stichwahl and candidate attributes).</span></span>
-<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a><span class="co">#&gt; ags_crosswalks                   Crosswalks for municipalities (1990-2025).</span></span>
-<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a><span class="co">#&gt; cty_crosswalks                   Crosswalks for counties (1990-2025).</span></span>
-<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a><span class="co">#&gt; wkr_2021_to_2025_crosswalk       Bundestag Wahlkreis crosswalk: 2021 to 2025 (unchanged / redrawn / new).</span></span>
-<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a><span class="co">#&gt; ags_1990_to_2023_crosswalk       Municipality crosswalk: 1990 boundaries to 2023 boundaries.</span></span>
-<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a><span class="co">#&gt; ags_1990_to_2025_crosswalk       Municipality crosswalk: 1990 boundaries to 2025 boundaries.</span></span>
-<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2021_to_2023       Municipality crosswalk: AGS 2021 to AGS 2023 (targeted).</span></span>
-<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2021_2022_to_2023  Municipality crosswalk: AGS 2021 and 2022 to AGS 2023 (targeted).</span></span>
-<span id="cb2-42"><a href="#cb2-42" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2023_to_2025       Municipality crosswalk: AGS 2023 to AGS 2025 (targeted; RDS only).</span></span>
-<span id="cb2-43"><a href="#cb2-43" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2023_24_to_2025    Municipality crosswalk: AGS 2023 and 2024 to AGS 2025 (targeted; RDS only).</span></span>
-<span id="cb2-44"><a href="#cb2-44" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2024_to_2025       Municipality crosswalk: AGS 2024 to AGS 2025 (targeted; RDS only).</span></span>
-<span id="cb2-45"><a href="#cb2-45" tabindex="-1"></a><span class="co">#&gt; ags_area_pop_emp                 Crosswalk covariates (area, population, employment) for municipalities (1990-2025).</span></span>
-<span id="cb2-46"><a href="#cb2-46" tabindex="-1"></a><span class="co">#&gt; ags_area_pop_emp_2023            Crosswalk covariates (area, population, employment) for municipalities, harmonized to 2023 boundaries.</span></span>
-<span id="cb2-47"><a href="#cb2-47" tabindex="-1"></a><span class="co">#&gt; cty_area_pop_emp                 Crosswalk covariates (area, population, employment) for counties (1990-2025).</span></span></code></pre></div>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; county_council_seats             County council (Kreistag) seat composition, yearly panel on fixed current county boundaries (2008-2025).</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt; european_muni_unharm             European Parliament elections at the municipal level, unharmonized.</span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; european_muni_harm               European Parliament elections at the municipal level, harmonized.</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt; mayoral_unharm                   Mayoral election results at the municipal level, unharmonized.</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt; mayoral_harm                     Mayoral election results at the municipal level, harmonized.</span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt; mayoral_candidates               Mayoral candidates (person-level).</span></span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#&gt; mayor_panel                      Mayor panel (person-level, one row per mayor-term).</span></span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a><span class="co">#&gt; mayor_panel_harm                 Mayor panel (person-level, harmonized to current boundaries).</span></span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="co">#&gt; mayor_panel_annual               Mayor panel at annual frequency (one row per municipality-year).</span></span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co">#&gt; mayor_panel_annual_harm          Mayor panel at annual frequency, harmonized to current boundaries.</span></span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt; landrat_unharm                   Landrat (county executive) elections at the county level (1945-2026, unharmonized).</span></span>
+<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a><span class="co">#&gt; landrat_candidates               Landrat candidates (person-level, includes Stichwahl and candidate attributes).</span></span>
+<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a><span class="co">#&gt; ags_crosswalks                   Crosswalks for municipalities (1990-2025).</span></span>
+<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a><span class="co">#&gt; cty_crosswalks                   Crosswalks for counties (1990-2025).</span></span>
+<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a><span class="co">#&gt; wkr_2021_to_2025_crosswalk       Bundestag Wahlkreis crosswalk: 2021 to 2025 (unchanged / redrawn / new).</span></span>
+<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a><span class="co">#&gt; ags_1990_to_2023_crosswalk       Municipality crosswalk: 1990 boundaries to 2023 boundaries.</span></span>
+<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a><span class="co">#&gt; ags_1990_to_2025_crosswalk       Municipality crosswalk: 1990 boundaries to 2025 boundaries.</span></span>
+<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2021_to_2023       Municipality crosswalk: AGS 2021 to AGS 2023 (targeted).</span></span>
+<span id="cb2-42"><a href="#cb2-42" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2021_2022_to_2023  Municipality crosswalk: AGS 2021 and 2022 to AGS 2023 (targeted).</span></span>
+<span id="cb2-43"><a href="#cb2-43" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2023_to_2025       Municipality crosswalk: AGS 2023 to AGS 2025 (targeted; RDS only).</span></span>
+<span id="cb2-44"><a href="#cb2-44" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2023_24_to_2025    Municipality crosswalk: AGS 2023 and 2024 to AGS 2025 (targeted; RDS only).</span></span>
+<span id="cb2-45"><a href="#cb2-45" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2024_to_2025       Municipality crosswalk: AGS 2024 to AGS 2025 (targeted; RDS only).</span></span>
+<span id="cb2-46"><a href="#cb2-46" tabindex="-1"></a><span class="co">#&gt; ags_area_pop_emp                 Crosswalk covariates (area, population, employment) for municipalities (1990-2025).</span></span>
+<span id="cb2-47"><a href="#cb2-47" tabindex="-1"></a><span class="co">#&gt; ags_area_pop_emp_2023            Crosswalk covariates (area, population, employment) for municipalities, harmonized to 2023 boundaries.</span></span>
+<span id="cb2-48"><a href="#cb2-48" tabindex="-1"></a><span class="co">#&gt; cty_area_pop_emp                 Crosswalk covariates (area, population, employment) for counties (1990-2025).</span></span></code></pre></div>
 <p>This function displays a formatted table with the names and
-descriptions of all available datasets. You can use the
-<code>file_name</code> column from this output to specify which dataset
-you want to load using the <code>load_gerda_web()</code> function.</p>
+descriptions of all available datasets. Use
+<code>gerda_data_list(print_table = FALSE)</code> to obtain the
+structured catalog, then pass a value from its <code>data_name</code>
+column to <code>load_gerda_web()</code>.</p>
 </div>
 <div id="loading-data" class="section level2">
 <h2>Loading Data</h2>
@@ -427,7 +433,13 @@ you want to load using the <code>load_gerda_web()</code> function.</p>
 specific dataset from a web source. Here’s an example of how to use
 it:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Load the municipal harmonized dataset</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>municipal_harm_data <span class="ot">&lt;-</span> <span class="fu">load_gerda_web</span>(<span class="st">&quot;municipal_harm&quot;</span>, <span class="at">verbose =</span> <span class="cn">TRUE</span>, <span class="at">file_format =</span> <span class="st">&quot;rds&quot;</span>)</span></code></pre></div>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>municipal_harm_data <span class="ot">&lt;-</span> <span class="fu">load_gerda_web</span>(</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="st">&quot;municipal_harm&quot;</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="at">file_format =</span> <span class="st">&quot;rds&quot;</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  <span class="at">on_error =</span> <span class="st">&quot;stop&quot;</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>  <span class="at">cache =</span> <span class="cn">TRUE</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>)</span></code></pre></div>
 <p>The <code>load_gerda_web()</code> function takes the following
 parameters:</p>
 <ul>
@@ -441,7 +453,49 @@ messages about the loading process (default is <code>FALSE</code>)</li>
 either <code>&quot;rds&quot;</code> or <code>&quot;csv&quot;</code> (default is
 <code>&quot;rds&quot;</code>). Both formats return the same tibble, so this choice
 only affects download size and speed.</li>
+<li><code>on_error</code>: Use <code>&quot;stop&quot;</code> in scripts and
+pipelines so a failed load raises an immediate error instead of
+returning <code>NULL</code> (the backwards-compatible default is
+<code>&quot;warn&quot;</code>).</li>
+<li><code>timeout</code> and <code>max_retries</code>: Control the
+download timeout and number of retry attempts.</li>
+<li><code>cache</code>: If <code>TRUE</code>, retain a local copy for
+subsequent calls. The default is <code>FALSE</code>.</li>
+<li><code>refresh</code>: If <code>TRUE</code>, ignore a cached copy and
+download the dataset again.</li>
 </ul>
+</div>
+<div id="choosing-the-right-dataset" class="section level2">
+<h2>Choosing the Right Dataset</h2>
+<p>The dataset variant is a substantive choice:</p>
+<ul>
+<li><code>*_raw</code> files retain a source-near representation and are
+mainly useful for auditing or custom cleaning.</li>
+<li><code>*_unharm</code> files use the geography in force at each
+election. They are suitable for cross-sectional analyses, but geographic
+identifiers can refer to changing territories over time.</li>
+<li><code>*_harm</code> files map observations to a common geography for
+comparisons over time. A suffix such as <code>_21</code>,
+<code>_23</code>, or <code>_25</code> states the target boundary
+vintage. Select the vintage that matches the analysis rather than
+automatically choosing the newest one.</li>
+<li>Wahlkreis files ending in <code>_long</code> contain party vote
+counts; their wide counterparts contain party vote shares. State and
+federal Wahlkreis boundaries can change between elections, and the
+unharmonized files do not by themselves create fixed-boundary
+panels.</li>
+</ul>
+<p>The structured catalog supports programmatic filtering:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>catalog <span class="ot">&lt;-</span> <span class="fu">gerda_data_list</span>(<span class="at">print_table =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">subset</span>(catalog,</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>       election_type <span class="sc">==</span> <span class="st">&quot;federal&quot;</span> <span class="sc">&amp;</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>       geographic_level <span class="sc">==</span> <span class="st">&quot;municipality&quot;</span> <span class="sc">&amp;</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>       boundary <span class="sc">==</span> <span class="st">&quot;2025&quot;</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 9</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt;   data_name       description election_type geographic_level year_start year_end</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;           &lt;chr&gt;       &lt;chr&gt;         &lt;chr&gt;                 &lt;int&gt;    &lt;int&gt;</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; 1 federal_muni_h… Federal el… federal       municipality           1990     2025</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt; # ℹ 3 more variables: boundary &lt;chr&gt;, formats &lt;chr&gt;, candidate_info &lt;lgl&gt;</span></span></code></pre></div>
 </div>
 <div id="example-workflow" class="section level2">
 <h2>Example Workflow</h2>
@@ -450,58 +504,64 @@ package:</p>
 <ol style="list-style-type: decimal">
 <li>List available datasets:</li>
 </ol>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">gerda_data_list</span>()</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; municipal_unharm                 Local elections at the municipal level (1990-2020, unharmonized).</span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; municipal_harm                   Local elections at the municipal level (1990-2020, harmonized).</span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; municipal_harm_25                Local elections at the municipal level, harmonized to 2025 boundaries.</span></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; state_unharm                     State elections at the municipal level (2006-2019, unharmonized).</span></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; state_harm                       State elections at the municipal level (2006-2019, harmonized).</span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; state_harm_21                    State elections at the municipal level, harmonized to 2021 boundaries.</span></span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; state_harm_23                    State elections at the municipal level, harmonized to 2023 boundaries.</span></span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; state_harm_25                    State elections at the municipal level, harmonized to 2025 boundaries.</span></span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt; ltw_wkr_unharm                   State (Landtag) elections at the Wahlkreis (constituency) level (1990-2026, unharmonized).</span></span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt; ltw_wkr_unharm_long              State (Landtag) elections at the Wahlkreis level (1990-2026), long format with vote counts.</span></span>
-<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt; federal_muni_raw                 Federal elections at the municipal level (1980-2025, raw data).</span></span>
-<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt; federal_muni_unharm              Federal elections at the municipal level (1980-2025, unharmonized).</span></span>
-<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt; federal_muni_harm_21             Federal elections at the municipal level (1990-2025, harmonized to 2021 boundaries).</span></span>
-<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt; federal_muni_harm_25             Federal elections at the municipal level (1990-2025, harmonized to 2025 boundaries).</span></span>
-<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt; federal_cty_unharm               Federal elections at the county level (1953-2021, unharmonized).</span></span>
-<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt; federal_cty_harm                 Federal elections at the county level (1990-2021, harmonized).</span></span>
-<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co">#&gt; federal_wkr_unharm               Federal elections at the Wahlkreis (constituency) level (2002-2025, unharmonized).</span></span>
-<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="co">#&gt; federal_wkr_unharm_long          Federal elections at the Wahlkreis level (2002-2025), long format with vote counts.</span></span>
-<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="co">#&gt; federal_wkr_2021_on_2025         Federal 2021 result recomputed onto the 2025 Wahlkreis boundaries (official recomputation).</span></span>
-<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="co">#&gt; county_elec_unharm               County (Kreistag) elections at the municipal level, unharmonized.</span></span>
-<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a><span class="co">#&gt; county_elec_harm_21_cty          County (Kreistag) elections aggregated to county level, harmonized to 2021 boundaries.</span></span>
-<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a><span class="co">#&gt; county_elec_harm_21_muni         County (Kreistag) elections at the municipal level, harmonized to 2021 boundaries.</span></span>
-<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a><span class="co">#&gt; european_muni_unharm             European Parliament elections at the municipal level, unharmonized.</span></span>
-<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a><span class="co">#&gt; european_muni_harm               European Parliament elections at the municipal level, harmonized.</span></span>
-<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a><span class="co">#&gt; mayoral_unharm                   Mayoral election results at the municipal level, unharmonized.</span></span>
-<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a><span class="co">#&gt; mayoral_harm                     Mayoral election results at the municipal level, harmonized.</span></span>
-<span id="cb4-28"><a href="#cb4-28" tabindex="-1"></a><span class="co">#&gt; mayoral_candidates               Mayoral candidates (person-level).</span></span>
-<span id="cb4-29"><a href="#cb4-29" tabindex="-1"></a><span class="co">#&gt; mayor_panel                      Mayor panel (person-level, one row per mayor-term).</span></span>
-<span id="cb4-30"><a href="#cb4-30" tabindex="-1"></a><span class="co">#&gt; mayor_panel_harm                 Mayor panel (person-level, harmonized to current boundaries).</span></span>
-<span id="cb4-31"><a href="#cb4-31" tabindex="-1"></a><span class="co">#&gt; mayor_panel_annual               Mayor panel at annual frequency (one row per municipality-year).</span></span>
-<span id="cb4-32"><a href="#cb4-32" tabindex="-1"></a><span class="co">#&gt; mayor_panel_annual_harm          Mayor panel at annual frequency, harmonized to current boundaries.</span></span>
-<span id="cb4-33"><a href="#cb4-33" tabindex="-1"></a><span class="co">#&gt; landrat_unharm                   Landrat (county executive) elections at the county level (1945-2026, unharmonized).</span></span>
-<span id="cb4-34"><a href="#cb4-34" tabindex="-1"></a><span class="co">#&gt; landrat_candidates               Landrat candidates (person-level, includes Stichwahl and candidate attributes).</span></span>
-<span id="cb4-35"><a href="#cb4-35" tabindex="-1"></a><span class="co">#&gt; ags_crosswalks                   Crosswalks for municipalities (1990-2025).</span></span>
-<span id="cb4-36"><a href="#cb4-36" tabindex="-1"></a><span class="co">#&gt; cty_crosswalks                   Crosswalks for counties (1990-2025).</span></span>
-<span id="cb4-37"><a href="#cb4-37" tabindex="-1"></a><span class="co">#&gt; wkr_2021_to_2025_crosswalk       Bundestag Wahlkreis crosswalk: 2021 to 2025 (unchanged / redrawn / new).</span></span>
-<span id="cb4-38"><a href="#cb4-38" tabindex="-1"></a><span class="co">#&gt; ags_1990_to_2023_crosswalk       Municipality crosswalk: 1990 boundaries to 2023 boundaries.</span></span>
-<span id="cb4-39"><a href="#cb4-39" tabindex="-1"></a><span class="co">#&gt; ags_1990_to_2025_crosswalk       Municipality crosswalk: 1990 boundaries to 2025 boundaries.</span></span>
-<span id="cb4-40"><a href="#cb4-40" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2021_to_2023       Municipality crosswalk: AGS 2021 to AGS 2023 (targeted).</span></span>
-<span id="cb4-41"><a href="#cb4-41" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2021_2022_to_2023  Municipality crosswalk: AGS 2021 and 2022 to AGS 2023 (targeted).</span></span>
-<span id="cb4-42"><a href="#cb4-42" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2023_to_2025       Municipality crosswalk: AGS 2023 to AGS 2025 (targeted; RDS only).</span></span>
-<span id="cb4-43"><a href="#cb4-43" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2023_24_to_2025    Municipality crosswalk: AGS 2023 and 2024 to AGS 2025 (targeted; RDS only).</span></span>
-<span id="cb4-44"><a href="#cb4-44" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2024_to_2025       Municipality crosswalk: AGS 2024 to AGS 2025 (targeted; RDS only).</span></span>
-<span id="cb4-45"><a href="#cb4-45" tabindex="-1"></a><span class="co">#&gt; ags_area_pop_emp                 Crosswalk covariates (area, population, employment) for municipalities (1990-2025).</span></span>
-<span id="cb4-46"><a href="#cb4-46" tabindex="-1"></a><span class="co">#&gt; ags_area_pop_emp_2023            Crosswalk covariates (area, population, employment) for municipalities, harmonized to 2023 boundaries.</span></span>
-<span id="cb4-47"><a href="#cb4-47" tabindex="-1"></a><span class="co">#&gt; cty_area_pop_emp                 Crosswalk covariates (area, population, employment) for counties (1990-2025).</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">gerda_data_list</span>()</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; municipal_unharm                 Local elections at the municipal level (1984-2026, unharmonized; includes council seat counts (seats_*) where the state source reports them).</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; municipal_harm                   Local elections at the municipal level (1990-2026, harmonized).</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; municipal_harm_25                Local elections at the municipal level (1990-2026, harmonized to 2025 boundaries).</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; state_unharm                     State elections at the municipal level (2006-2019, unharmonized).</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; state_harm                       State elections at the municipal level (2006-2019, harmonized).</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; state_harm_21                    State elections at the municipal level, harmonized to 2021 boundaries.</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; state_harm_23                    State elections at the municipal level, harmonized to 2023 boundaries.</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; state_harm_25                    State elections at the municipal level, harmonized to 2025 boundaries.</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; ltw_wkr_unharm                   State (Landtag) elections at the Wahlkreis (constituency) level (1990-2026, unharmonized).</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; ltw_wkr_unharm_long              State (Landtag) elections at the Wahlkreis level (1990-2026), long format with vote counts.</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; federal_muni_raw                 Federal elections at the municipal level (1980-2025, raw data).</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; federal_muni_unharm              Federal elections at the municipal level (1980-2025, unharmonized).</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt; federal_muni_harm_21             Federal elections at the municipal level (1990-2025, harmonized to 2021 boundaries).</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt; federal_muni_harm_25             Federal elections at the municipal level (1990-2025, harmonized to 2025 boundaries).</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt; federal_cty_unharm               Federal elections at the county level (1953-2021, unharmonized).</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt; federal_cty_harm                 Federal elections at the county level (1990-2021, harmonized).</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt; federal_wkr_unharm               Federal elections at the Wahlkreis (constituency) level (2002-2025, unharmonized).</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt; federal_wkr_unharm_long          Federal elections at the Wahlkreis level (2002-2025), long format with vote counts.</span></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt; federal_wkr_2021_on_2025         Federal 2021 result recomputed onto the 2025 Wahlkreis boundaries (official recomputation).</span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt; county_elec_unharm               County (Kreistag) elections at the municipal level, unharmonized.</span></span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt; county_elec_harm_21_cty          County (Kreistag) elections aggregated to county level, harmonized to 2021 boundaries.</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt; county_elec_harm_21_muni         County (Kreistag) elections at the municipal level, harmonized to 2021 boundaries.</span></span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt; county_council_seats             County council (Kreistag) seat composition, yearly panel on fixed current county boundaries (2008-2025).</span></span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">#&gt; european_muni_unharm             European Parliament elections at the municipal level, unharmonized.</span></span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co">#&gt; european_muni_harm               European Parliament elections at the municipal level, harmonized.</span></span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="co">#&gt; mayoral_unharm                   Mayoral election results at the municipal level, unharmonized.</span></span>
+<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="co">#&gt; mayoral_harm                     Mayoral election results at the municipal level, harmonized.</span></span>
+<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a><span class="co">#&gt; mayoral_candidates               Mayoral candidates (person-level).</span></span>
+<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a><span class="co">#&gt; mayor_panel                      Mayor panel (person-level, one row per mayor-term).</span></span>
+<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a><span class="co">#&gt; mayor_panel_harm                 Mayor panel (person-level, harmonized to current boundaries).</span></span>
+<span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a><span class="co">#&gt; mayor_panel_annual               Mayor panel at annual frequency (one row per municipality-year).</span></span>
+<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a><span class="co">#&gt; mayor_panel_annual_harm          Mayor panel at annual frequency, harmonized to current boundaries.</span></span>
+<span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a><span class="co">#&gt; landrat_unharm                   Landrat (county executive) elections at the county level (1945-2026, unharmonized).</span></span>
+<span id="cb5-35"><a href="#cb5-35" tabindex="-1"></a><span class="co">#&gt; landrat_candidates               Landrat candidates (person-level, includes Stichwahl and candidate attributes).</span></span>
+<span id="cb5-36"><a href="#cb5-36" tabindex="-1"></a><span class="co">#&gt; ags_crosswalks                   Crosswalks for municipalities (1990-2025).</span></span>
+<span id="cb5-37"><a href="#cb5-37" tabindex="-1"></a><span class="co">#&gt; cty_crosswalks                   Crosswalks for counties (1990-2025).</span></span>
+<span id="cb5-38"><a href="#cb5-38" tabindex="-1"></a><span class="co">#&gt; wkr_2021_to_2025_crosswalk       Bundestag Wahlkreis crosswalk: 2021 to 2025 (unchanged / redrawn / new).</span></span>
+<span id="cb5-39"><a href="#cb5-39" tabindex="-1"></a><span class="co">#&gt; ags_1990_to_2023_crosswalk       Municipality crosswalk: 1990 boundaries to 2023 boundaries.</span></span>
+<span id="cb5-40"><a href="#cb5-40" tabindex="-1"></a><span class="co">#&gt; ags_1990_to_2025_crosswalk       Municipality crosswalk: 1990 boundaries to 2025 boundaries.</span></span>
+<span id="cb5-41"><a href="#cb5-41" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2021_to_2023       Municipality crosswalk: AGS 2021 to AGS 2023 (targeted).</span></span>
+<span id="cb5-42"><a href="#cb5-42" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2021_2022_to_2023  Municipality crosswalk: AGS 2021 and 2022 to AGS 2023 (targeted).</span></span>
+<span id="cb5-43"><a href="#cb5-43" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2023_to_2025       Municipality crosswalk: AGS 2023 to AGS 2025 (targeted; RDS only).</span></span>
+<span id="cb5-44"><a href="#cb5-44" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2023_24_to_2025    Municipality crosswalk: AGS 2023 and 2024 to AGS 2025 (targeted; RDS only).</span></span>
+<span id="cb5-45"><a href="#cb5-45" tabindex="-1"></a><span class="co">#&gt; crosswalk_ags_2024_to_2025       Municipality crosswalk: AGS 2024 to AGS 2025 (targeted; RDS only).</span></span>
+<span id="cb5-46"><a href="#cb5-46" tabindex="-1"></a><span class="co">#&gt; ags_area_pop_emp                 Crosswalk covariates (area, population, employment) for municipalities (1990-2025).</span></span>
+<span id="cb5-47"><a href="#cb5-47" tabindex="-1"></a><span class="co">#&gt; ags_area_pop_emp_2023            Crosswalk covariates (area, population, employment) for municipalities, harmonized to 2023 boundaries.</span></span>
+<span id="cb5-48"><a href="#cb5-48" tabindex="-1"></a><span class="co">#&gt; cty_area_pop_emp                 Crosswalk covariates (area, population, employment) for counties (1990-2025).</span></span></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
 <li>Load a dataset (in this case, the federal elections at the county
 level, harmonized):</li>
 </ol>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>federal_cty_harm <span class="ot">&lt;-</span> <span class="fu">load_gerda_web</span>(<span class="st">&quot;federal_cty_harm&quot;</span>, <span class="at">verbose =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>federal_cty_harm <span class="ot">&lt;-</span> <span class="fu">load_gerda_web</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="st">&quot;federal_cty_harm&quot;</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="at">on_error =</span> <span class="st">&quot;stop&quot;</span>,</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="at">cache =</span> <span class="cn">TRUE</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>)</span></code></pre></div>
 </div>
 <div id="joining-gerda-datasets" class="section level2">
 <h2>Joining GERDA Datasets</h2>
@@ -513,25 +573,61 @@ merging against other sources, the table below shows which identifier
 and time columns each family carries.</p>
 <table>
 <colgroup>
-<col width="55%" />
-<col width="28%" />
-<col width="16%" />
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
 </colgroup>
 <thead>
 <tr class="header">
 <th>Dataset family</th>
-<th>Geographic id</th>
+<th>Geographic identifier and additional row keys</th>
 <th>Time column</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td><code>municipal_*</code>, <code>state_*</code>,
-<code>federal_muni_*</code>, <code>european_muni_*</code>,
-<code>mayoral_*</code></td>
+<code>federal_muni_*</code>, <code>european_muni_*</code></td>
 <td><code>ags</code> (8-digit municipality)</td>
 <td><code>election_year</code> (+ <code>election_date</code> where
 available)</td>
+</tr>
+<tr class="even">
+<td><code>mayoral_unharm</code>, <code>mayoral_harm</code></td>
+<td><code>ags</code>; <code>round</code> distinguishes first and runoff
+rounds</td>
+<td><code>election_year</code>, <code>election_date</code></td>
+</tr>
+<tr class="odd">
+<td><code>mayoral_candidates</code></td>
+<td><code>ags</code> + candidate; first- and second-round results are
+stored in separate columns</td>
+<td><code>election_year</code>, <code>election_date</code>,
+<code>election_date_sw</code></td>
+</tr>
+<tr class="even">
+<td><code>mayor_panel</code>, <code>mayor_panel_harm</code></td>
+<td><code>ags</code> + <code>person_id</code></td>
+<td><code>election_date</code></td>
+</tr>
+<tr class="odd">
+<td><code>mayor_panel_annual</code>,
+<code>mayor_panel_annual_harm</code></td>
+<td><code>ags</code> + <code>person_id</code></td>
+<td><code>year</code></td>
+</tr>
+<tr class="even">
+<td><code>landrat_unharm</code></td>
+<td><code>ags</code> (8-digit county AGS ending in <code>000</code>);
+<code>round</code> distinguishes election rounds</td>
+<td><code>election_year</code>, <code>election_date</code></td>
+</tr>
+<tr class="odd">
+<td><code>landrat_candidates</code></td>
+<td><code>ags</code> (8-digit county AGS ending in <code>000</code>) +
+candidate</td>
+<td><code>election_year</code>, <code>election_date</code>,
+<code>election_date_sw</code></td>
 </tr>
 <tr class="even">
 <td><code>federal_cty_harm</code></td>
@@ -540,42 +636,70 @@ available)</td>
 </tr>
 <tr class="odd">
 <td><code>federal_cty_unharm</code></td>
-<td><code>county_code</code> + <code>ags</code> alias (see
-Deprecations)</td>
-<td><code>election_year</code> + <code>year</code> alias</td>
+<td><code>county_code</code> (renamed from upstream <code>ags</code> on
+load)</td>
+<td><code>election_year</code> (renamed from upstream <code>year</code>
+on load)</td>
 </tr>
 <tr class="even">
-<td><code>county_elec_*</code> (with <code>_cty</code> suffix)</td>
+<td><code>county_elec_*_cty</code></td>
 <td><code>county_code</code> (5-digit county)</td>
 <td><code>election_year</code></td>
 </tr>
 <tr class="odd">
-<td><code>county_elec_*</code> (without <code>_cty</code> suffix)</td>
+<td><code>county_elec_unharm</code>,
+<code>county_elec_*_muni</code></td>
 <td><code>ags</code> (8-digit municipality)</td>
 <td><code>election_year</code></td>
 </tr>
 <tr class="even">
-<td><code>mayor_panel</code> / <code>mayor_panel_harm</code></td>
-<td><code>ags</code> + <code>person_id</code></td>
-<td><code>election_date</code></td>
+<td><code>county_council_seats</code></td>
+<td><code>county</code> (5-digit county)</td>
+<td><code>year</code> (yearly panel; seat vectors carried forward
+between elections)</td>
 </tr>
 <tr class="odd">
-<td><code>mayor_panel_annual</code> /
-<code>mayor_panel_annual_harm</code></td>
-<td><code>ags</code> + <code>person_id</code></td>
-<td><code>year</code></td>
+<td><code>ltw_wkr_unharm</code></td>
+<td><code>state</code> + <code>wkr_nr</code> + <code>stimme</code></td>
+<td><code>election_year</code>, <code>election_date</code></td>
 </tr>
 <tr class="even">
+<td><code>ltw_wkr_unharm_long</code></td>
+<td><code>state</code> + <code>wkr_nr</code> + <code>stimme</code> +
+<code>party</code></td>
+<td><code>election_year</code>, <code>election_date</code></td>
+</tr>
+<tr class="odd">
+<td><code>federal_wkr_unharm</code></td>
+<td><code>wkr_nr</code> + <code>stimme</code></td>
+<td><code>election_year</code>, <code>election_date</code></td>
+</tr>
+<tr class="even">
+<td><code>federal_wkr_unharm_long</code></td>
+<td><code>wkr_nr</code> + <code>stimme</code> + <code>party</code></td>
+<td><code>election_year</code>, <code>election_date</code></td>
+</tr>
+<tr class="odd">
+<td><code>federal_wkr_2021_on_2025</code></td>
+<td><code>wkr_nr</code> (2025 boundaries) + <code>stimme</code></td>
+<td>Fixed 2021 result; no time column</td>
+</tr>
+<tr class="even">
+<td><code>wkr_2021_to_2025_crosswalk</code></td>
+<td><code>wkr_nr</code> (2025) + <code>prior_2021_wkr_nr</code></td>
+<td>Boundary vintages are encoded in column names</td>
+</tr>
+<tr class="odd">
 <td><code>gerda_covariates()</code> (INKAR, county-level)</td>
 <td><code>county_code</code> (5-digit county)</td>
 <td><code>year</code> (not <code>election_year</code>)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>gerda_census()</code> (Zensus 2022, municipality-level)</td>
 <td><code>ags</code> (8-digit municipality)</td>
-<td><em>time-invariant (2022)</em></td>
+<td><em>Time-invariant (2022)</em></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>ags_crosswalks</code>,
 <code>ags_1990_to_2023_crosswalk</code>,
 <code>ags_1990_to_2025_crosswalk</code>,
@@ -583,19 +707,21 @@ Deprecations)</td>
 <td>Pair of AGS codes at source and target vintages</td>
 <td>Vintage is encoded in column names</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>cty_crosswalks</code></td>
-<td>Pair of 5-digit county codes at source and target</td>
-<td>Vintage is in column names</td>
+<td>Pair of 5-digit county codes at source and target vintages</td>
+<td>Vintage is encoded in column names</td>
 </tr>
 </tbody>
 </table>
-<p>Two things to watch for when joining manually:</p>
+<p>Three things to watch for when joining manually:</p>
 <ul>
 <li><code>gerda_covariates()</code> uses <code>year</code>, not
 <code>election_year</code>. If you merge it directly into federal
 election data, you need a rename:
 <code>by = c(&quot;county_code&quot; = &quot;county_code&quot;, &quot;election_year&quot; = &quot;year&quot;)</code>.</li>
+<li>Keep AGS and Wahlkreis identifiers as character strings so leading
+zeros are preserved.</li>
 <li>On municipal-level files, the <code>county</code> column is a county
 name or partial code, not the 5-digit AGS-based county code. Use
 <code>substr(ags, 1, 5)</code> to extract the county key when you want
@@ -614,13 +740,17 @@ onwards (earlier elections fall outside the INKAR coverage window).</p>
 <h3>Quick Start</h3>
 <p>The easiest way to add covariates to your election data is using the
 <code>add_gerda_covariates()</code> function:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co"># Load election data and add covariates</span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>merged <span class="ot">&lt;-</span> <span class="fu">load_gerda_web</span>(<span class="st">&quot;federal_cty_harm&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="fu">add_gerda_covariates</span>()</span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co"># Your data now includes 30 county-level covariates!</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co"># Load election data and add covariates</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>merged <span class="ot">&lt;-</span> <span class="fu">load_gerda_web</span>(</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="st">&quot;federal_cty_harm&quot;</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="at">on_error =</span> <span class="st">&quot;stop&quot;</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  <span class="at">cache =</span> <span class="cn">TRUE</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>  <span class="fu">add_gerda_covariates</span>(<span class="at">unmatched =</span> <span class="st">&quot;error&quot;</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>join_report <span class="ot">&lt;-</span> <span class="fu">gerda_join_diagnostics</span>(merged)</span></code></pre></div>
 <p>Under the hood, <code>add_gerda_covariates()</code> merges on county
 code and election year. It automatically:</p>
 <ul>
@@ -630,7 +760,17 @@ code and election year. It automatically:</p>
 are added where available</li>
 <li>Validates that the required columns (<code>county_code</code> or
 <code>ags</code>, and <code>election_year</code>) are present</li>
+<li>Rejects malformed or numeric identifiers, duplicate reference keys,
+output-column conflicts, and row expansion</li>
+<li>Reports unexpected unmatched keys separately from election years
+outside the 1995-2022 INKAR coverage window</li>
 </ul>
+<p>The default <code>unmatched = &quot;warn&quot;</code> retains unexpected
+unmatched rows with missing joined values and reports exact row and unit
+counts. Use <code>&quot;error&quot;</code> in automated pipelines or
+<code>&quot;ignore&quot;</code> only when unmatched keys have already been
+audited. Retrieve the machine-readable report with
+<code>gerda_join_diagnostics()</code>.</p>
 </div>
 <div id="available-covariates" class="section level3">
 <h3>Available Covariates</h3>
@@ -662,29 +802,29 @@ space</li>
 <h3>Viewing the Codebook</h3>
 <p>To see detailed information about each covariate, including units and
 missing data patterns:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Get the codebook</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>codebook <span class="ot">&lt;-</span> <span class="fu">gerda_covariates_codebook</span>()</span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="fu">print</span>(codebook)</span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co"># Find variables with good coverage</span></span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>codebook <span class="sc">%&gt;%</span></span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  <span class="fu">filter</span>(missing_pct <span class="sc">&lt;</span> <span class="dv">10</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>  <span class="fu">select</span>(variable, label, category)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Get the codebook</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>codebook <span class="ot">&lt;-</span> <span class="fu">gerda_covariates_codebook</span>()</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="fu">print</span>(codebook)</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co"># Find variables with good coverage</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>codebook <span class="sc">%&gt;%</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>  <span class="fu">filter</span>(missing_pct <span class="sc">&lt;</span> <span class="dv">10</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>  <span class="fu">select</span>(variable, label, category)</span></code></pre></div>
 </div>
 <div id="advanced-usage" class="section level3">
 <h3>Advanced Usage</h3>
 <p>For more control, you can access the raw covariates data:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Get raw covariate data</span></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>covs <span class="ot">&lt;-</span> <span class="fu">gerda_covariates</span>()</span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a></span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co"># Inspect before merging</span></span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="fu">summary</span>(covs<span class="sc">$</span>unemployment_rate)</span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a></span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co"># Custom merge</span></span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>elections <span class="ot">&lt;-</span> <span class="fu">load_gerda_web</span>(<span class="st">&quot;federal_cty_harm&quot;</span>)</span>
-<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>merged <span class="ot">&lt;-</span> elections <span class="sc">%&gt;%</span></span>
-<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>  <span class="fu">left_join</span>(covs, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;county_code&quot;</span> <span class="ot">=</span> <span class="st">&quot;county_code&quot;</span>, <span class="st">&quot;election_year&quot;</span> <span class="ot">=</span> <span class="st">&quot;year&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Get raw covariate data</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>covs <span class="ot">&lt;-</span> <span class="fu">gerda_covariates</span>()</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co"># Inspect before merging</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="fu">summary</span>(covs<span class="sc">$</span>unemployment_rate)</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co"># Custom merge</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>elections <span class="ot">&lt;-</span> <span class="fu">load_gerda_web</span>(<span class="st">&quot;federal_cty_harm&quot;</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>merged <span class="ot">&lt;-</span> elections <span class="sc">%&gt;%</span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>  <span class="fu">left_join</span>(covs, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;county_code&quot;</span> <span class="ot">=</span> <span class="st">&quot;county_code&quot;</span>, <span class="st">&quot;election_year&quot;</span> <span class="ot">=</span> <span class="st">&quot;year&quot;</span>))</span></code></pre></div>
 </div>
 <div id="data-coverage" class="section level3">
 <h3>Data Coverage</h3>
@@ -718,22 +858,32 @@ census values for all election years. Users should not conduct analyses
 that rely on over-time variation in these covariates.</p>
 <div id="quick-start-1" class="section level3">
 <h3>Quick Start</h3>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">library</span>(gerda)</span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co"># Add census data to municipal-level elections</span></span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>muni_merged <span class="ot">&lt;-</span> <span class="fu">load_gerda_web</span>(<span class="st">&quot;federal_muni_harm_21&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>  <span class="fu">add_gerda_census</span>()</span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a></span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co"># Also works with county-level data (aggregated from municipalities)</span></span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>county_merged <span class="ot">&lt;-</span> <span class="fu">load_gerda_web</span>(<span class="st">&quot;federal_cty_harm&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>  <span class="fu">add_gerda_census</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">library</span>(gerda)</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co"># Add census data to municipal-level elections</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>muni_merged <span class="ot">&lt;-</span> <span class="fu">load_gerda_web</span>(</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>  <span class="st">&quot;federal_muni_harm_21&quot;</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>  <span class="at">on_error =</span> <span class="st">&quot;stop&quot;</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>  <span class="at">cache =</span> <span class="cn">TRUE</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>  <span class="fu">add_gerda_census</span>(<span class="at">unmatched =</span> <span class="st">&quot;error&quot;</span>)</span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co"># Also works with county-level data (aggregated from municipalities)</span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>county_merged <span class="ot">&lt;-</span> <span class="fu">load_gerda_web</span>(</span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>  <span class="st">&quot;federal_cty_harm&quot;</span>,</span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a>  <span class="at">on_error =</span> <span class="st">&quot;stop&quot;</span>,</span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a>  <span class="at">cache =</span> <span class="cn">TRUE</span></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a>  <span class="fu">add_gerda_census</span>(<span class="at">unmatched =</span> <span class="st">&quot;error&quot;</span>)</span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a></span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="fu">gerda_join_diagnostics</span>(muni_merged)</span></code></pre></div>
 </div>
 <div id="available-indicators" class="section level3">
 <h3>Available Indicators</h3>
 <p>The census data includes 14 indicators across four categories:</p>
 <ul>
 <li><strong>Demographics</strong>: Population, age structure (under 18,
-18-29, 30-49, 50-64, 65+)</li>
+18-29, 30-49, 50-59, 60+)</li>
 <li><strong>Migration</strong>: Migration background share, foreign
 nationals share</li>
 <li><strong>Households</strong>: Average household size</li>
@@ -742,12 +892,16 @@ rate, average rent per m², single-family home share</li>
 </ul>
 <p>Since the census is a 2022 snapshot, the same values are attached to
 all election years (see also the note above).</p>
+<p>The Destatis source publishes a combined 60-74 age bin. GERDA
+therefore exposes <code>share_50to59_census22</code> and
+<code>share_60plus_census22</code>; the source cannot support separate
+50-64 and 65+ measures.</p>
 </div>
 <div id="viewing-the-codebook-1" class="section level3">
 <h3>Viewing the Codebook</h3>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># Get the census codebook</span></span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>census_cb <span class="ot">&lt;-</span> <span class="fu">gerda_census_codebook</span>()</span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="fu">print</span>(census_cb)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># Get the census codebook</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>census_cb <span class="ot">&lt;-</span> <span class="fu">gerda_census_codebook</span>()</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="fu">print</span>(census_cb)</span></code></pre></div>
 </div>
 <div id="data-coverage-1" class="section level3">
 <h3>Data Coverage</h3>
@@ -788,14 +942,14 @@ characteristics, including:</p>
 </div>
 <div id="example" class="section level3">
 <h3>Example</h3>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># Map GERDA party names to left-right positions</span></span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>parties <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;cdu&quot;</span>, <span class="st">&quot;spd&quot;</span>, <span class="st">&quot;linke_pds&quot;</span>, <span class="st">&quot;fdp&quot;</span>)</span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>left_right_scores <span class="ot">&lt;-</span> <span class="fu">party_crosswalk</span>(parties, <span class="st">&quot;left_right&quot;</span>)</span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="fu">print</span>(left_right_scores)</span>
-<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a></span>
-<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co"># Map to English party names</span></span>
-<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>english_names <span class="ot">&lt;-</span> <span class="fu">party_crosswalk</span>(parties, <span class="st">&quot;party_name_english&quot;</span>)</span>
-<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="fu">print</span>(english_names)</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="co"># Map GERDA party names to left-right positions</span></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>parties <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;cdu&quot;</span>, <span class="st">&quot;spd&quot;</span>, <span class="st">&quot;linke_pds&quot;</span>, <span class="st">&quot;fdp&quot;</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>left_right_scores <span class="ot">&lt;-</span> <span class="fu">party_crosswalk</span>(parties, <span class="st">&quot;left_right&quot;</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="fu">print</span>(left_right_scores)</span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="co"># Map to English party names</span></span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a>english_names <span class="ot">&lt;-</span> <span class="fu">party_crosswalk</span>(parties, <span class="st">&quot;party_name_english&quot;</span>)</span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="fu">print</span>(english_names)</span></code></pre></div>
 <p>This function is especially useful when you want to:</p>
 <ul>
 <li>Analyze parties along ideological dimensions</li>

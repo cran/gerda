@@ -1,3 +1,30 @@
+# gerda 0.8.0
+
+## New Data
+
+* Added `county_council_seats` to the catalog (46 → 47 datasets): a yearly panel of county council (Kreistag) seat composition, 400 counties × 18 years (2008–2025), on a fixed set of current county boundaries. Seat vectors are carried forward between elections; reform-created counties are missing before they existed.
+* `municipal_unharm` now includes ten council seat count columns (`seats_cdu_csu`, `seats_spd`, `seats_linke_pds`, `seats_gruene`, `seats_afd`, `seats_piraten`, `seats_fdp`, `seats_die_partei`, `seats_freie_wahler`, `seats_bsw`) where the state source reports them. Seats are deliberately absent from the harmonized municipal files: seat counts cannot be meaningfully summed across merged municipalities.
+* Corrected stale catalog year ranges for the municipal family: `municipal_unharm` covers 1984–2026 and `municipal_harm` / `municipal_harm_25` cover 1990–2026 (previously listed as 1990–2020).
+
+## Breaking Changes
+
+* `load_gerda_web("federal_cty_unharm")` now renames the upstream `ags` and `year` columns to `county_code` and `election_year` on load and no longer keeps the deprecated duplicates. This completes the removal announced in 0.6.0 (and deferred once in 0.7.0); a one-time message on load points existing code to the new names.
+* Corrected two misleading Census 2022 variable names to match the source bins: `share_50to64_census22` is now `share_50to59_census22`, and `share_65plus_census22` is now `share_60plus_census22`. Destatis publishes a combined age 60-74 bin, so true 50-64 and 65+ measures cannot be recovered from these tables.
+* `add_gerda_covariates()` and `add_gerda_census()` now reject numeric or malformed geographic identifiers. County codes must be five-digit character strings and municipality AGS codes must be eight-digit character strings; this prevents joins after leading zeros have been lost. The helpers also reject destination-column conflicts instead of creating ambiguous suffixes.
+
+## Safer Joins
+
+* Added `unmatched = "warn"`, `"error"`, or `"ignore"` to both enrichment helpers. Exact unmatched row and unit counts are reported; INKAR election years outside 1995-2022 are classified separately and retained with missing joined values.
+* Both helpers now verify that bundled reference keys are complete and unique before joining and that the output row count equals the input row count.
+* Added `gerda_join_diagnostics()` to retrieve machine-readable reports for one or multiple enrichment joins.
+
+## Documentation
+
+* Updated the README and vignette for the 46-dataset catalog, including the state Wahlkreis and Landrat families.
+* Added guidance for choosing raw, unharmonized, and harmonized datasets and documented the current join identifiers and time columns.
+* Added an agent-oriented vignette covering deterministic catalog selection, fail-closed downloads, project snapshots and checksums, schema validation, guarded joins, and handoff requirements.
+* Updated development and test-suite documentation to match the current package structure.
+
 # gerda 0.7.1
 
 ## New Features

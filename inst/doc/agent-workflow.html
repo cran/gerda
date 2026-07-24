@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Using GERDA in Agent-Run Research Workflows</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Using GERDA in Agent-Run Research
+Workflows</h1>
+
+
+
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(gerda)</span></code></pre></div>
+<p>This vignette is a fail-closed workflow for coding agents that use
+GERDA in a research project. It separates dataset selection,
+acquisition, schema checks, joins, and provenance so that an agent
+cannot silently continue after choosing the wrong dataset or losing
+observations.</p>
+<div id="select-from-the-structured-catalog" class="section level2">
+<h2>Select from the structured catalog</h2>
+<p>Do not guess a dataset name from a prose description. Query the
+catalog and require one result before downloading:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>catalog <span class="ot">&lt;-</span> <span class="fu">gerda_data_list</span>(<span class="at">print_table =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>candidates <span class="ot">&lt;-</span> <span class="fu">subset</span>(</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  catalog,</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  election_type <span class="sc">==</span> <span class="st">&quot;federal&quot;</span> <span class="sc">&amp;</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>    geographic_level <span class="sc">==</span> <span class="st">&quot;municipality&quot;</span> <span class="sc">&amp;</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>    boundary <span class="sc">==</span> <span class="st">&quot;2025&quot;</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>)</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>candidates[, <span class="fu">c</span>(</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>  <span class="st">&quot;data_name&quot;</span>, <span class="st">&quot;year_start&quot;</span>, <span class="st">&quot;year_end&quot;</span>, <span class="st">&quot;boundary&quot;</span>, <span class="st">&quot;formats&quot;</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>)]</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 5</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt;   data_name            year_start year_end boundary formats</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;                     &lt;int&gt;    &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;  </span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; 1 federal_muni_harm_25       1990     2025 2025     csv,rds</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">nrow</span>(candidates) <span class="sc">==</span> 1L)</span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>data_name <span class="ot">&lt;-</span> candidates<span class="sc">$</span>data_name[[<span class="dv">1</span>]]</span></code></pre></div>
+<p>The boundary choice is part of the research design.
+<code>*_unharm</code> files use the geography in force at each election;
+<code>*_harm</code> files map observations to a common geography. A
+suffix such as <code>_21</code>, <code>_23</code>, or <code>_25</code>
+identifies the target boundary vintage. An agent should record why that
+vintage matches the analysis.</p>
+</div>
+<div id="download-with-errors-enabled-and-save-a-project-snapshot" class="section level2">
+<h2>Download with errors enabled and save a project snapshot</h2>
+<p>Use RDS for smaller downloads, make load failures fatal, and opt into
+caching when repeated runs are expected:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>elections <span class="ot">&lt;-</span> <span class="fu">load_gerda_web</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  data_name,</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="at">file_format =</span> <span class="st">&quot;rds&quot;</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="at">on_error =</span> <span class="st">&quot;stop&quot;</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="at">cache =</span> <span class="cn">TRUE</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>)</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">is.data.frame</span>(elections), <span class="fu">nrow</span>(elections) <span class="sc">&gt;</span> 0L)</span></code></pre></div>
+<p>The cache improves speed but does not pin an immutable upstream
+version. For a reproducible project, save the data actually analyzed and
+its checksum inside the project, subject to the project’s data-storage
+policy:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">&quot;data/derived&quot;</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>snapshot_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">&quot;data/derived&quot;</span>, <span class="fu">paste0</span>(data_name, <span class="st">&quot;.rds&quot;</span>))</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">saveRDS</span>(elections, snapshot_path)</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>provenance <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="at">package =</span> <span class="st">&quot;gerda&quot;</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="at">package_version =</span> <span class="fu">as.character</span>(utils<span class="sc">::</span><span class="fu">packageVersion</span>(<span class="st">&quot;gerda&quot;</span>)),</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  <span class="at">dataset =</span> data_name,</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>  <span class="at">format =</span> <span class="st">&quot;rds&quot;</span>,</span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>  <span class="at">retrieved_at_utc =</span> <span class="fu">format</span>(<span class="fu">Sys.time</span>(), <span class="at">tz =</span> <span class="st">&quot;UTC&quot;</span>, <span class="at">usetz =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>  <span class="at">snapshot_path =</span> snapshot_path,</span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>  <span class="at">snapshot_md5 =</span> <span class="fu">unname</span>(tools<span class="sc">::</span><span class="fu">md5sum</span>(snapshot_path))</span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>)</span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="fu">saveRDS</span>(provenance, <span class="st">&quot;data/derived/gerda_provenance.rds&quot;</span>)</span></code></pre></div>
+<p><code>load_gerda_web()</code> reads final data artifacts from the <a href="https://github.com/awiedem/german_election_data">GERDA data
+repository</a>. Use that repository when an audit requires source files,
+cleaning scripts, or lineage below the package’s final artifacts. Files
+named <code>*_raw</code> are the most source-near GERDA representation;
+they are not a substitute for inspecting the original source and build
+pipeline.</p>
+</div>
+<div id="validate-the-loaded-schema-before-analysis" class="section level2">
+<h2>Validate the loaded schema before analysis</h2>
+<p>Geographic identifiers must remain character vectors. Re-read the
+original source with explicit character column types if an identifier
+became numeric; padding a damaged numeric value later can conceal
+leading-zero loss.</p>
+<p>For the selected municipal panel, a minimal structural audit is:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>required <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;ags&quot;</span>, <span class="st">&quot;election_year&quot;</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(required <span class="sc">%in%</span> <span class="fu">names</span>(elections)))</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.character</span>(elections<span class="sc">$</span>ags) <span class="sc">||</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>    <span class="fu">any</span>(<span class="sc">!</span><span class="fu">is.na</span>(elections<span class="sc">$</span>ags) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">grepl</span>(<span class="st">&quot;^[0-9]{8}$&quot;</span>, elections<span class="sc">$</span>ags))) {</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  <span class="fu">stop</span>(<span class="st">&quot;ags must contain eight-digit character identifiers&quot;</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>}</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">any</span>(<span class="sc">!</span>stats<span class="sc">::</span><span class="fu">complete.cases</span>(elections[required]))) {</span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>  <span class="fu">stop</span>(<span class="st">&quot;Missing geographic or time keys require investigation&quot;</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>}</span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">anyDuplicated</span>(elections[required])) {</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>  <span class="fu">stop</span>(<span class="st">&quot;ags + election_year is not unique; identify additional row keys&quot;</span>)</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>}</span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>expected_years <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">unique</span>(elections<span class="sc">$</span>election_year))</span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>years_by_unit <span class="ot">&lt;-</span> <span class="fu">split</span>(elections<span class="sc">$</span>election_year, elections<span class="sc">$</span>ags)</span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>units_with_gaps <span class="ot">&lt;-</span> <span class="fu">names</span>(<span class="fu">Filter</span>(</span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>  <span class="cf">function</span>(x) <span class="sc">!</span><span class="fu">identical</span>(<span class="fu">sort</span>(<span class="fu">unique</span>(x)), expected_years),</span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a>  years_by_unit</span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>))</span></code></pre></div>
+<p>The correct row key varies by dataset. Candidate, election-round,
+party-long, and <code>stimme</code> files need additional key columns.
+Never resolve duplicate keys by calling <code>distinct()</code> unless
+the duplication has been explained. Inspect missingness in every
+analysis variable before filtering or estimation; do not silently drop
+rows with missing outcomes, treatments, identifiers, or years.</p>
+</div>
+<div id="use-guarded-joins-and-inspect-their-diagnostics" class="section level2">
+<h2>Use guarded joins and inspect their diagnostics</h2>
+<p>The two enrichment helpers enforce a many-to-one left-join contract.
+They reject numeric or malformed geographic identifiers, duplicate
+reference keys, columns that would be overwritten, and any join that
+expands the input row count. Set <code>unmatched = &quot;error&quot;</code> in
+agent-run pipelines:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>enriched <span class="ot">&lt;-</span> elections <span class="sc">|&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="fu">add_gerda_covariates</span>(<span class="at">unmatched =</span> <span class="st">&quot;error&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="fu">add_gerda_census</span>(<span class="at">unmatched =</span> <span class="st">&quot;error&quot;</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>join_report <span class="ot">&lt;-</span> <span class="fu">gerda_join_diagnostics</span>(enriched)</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="fu">print</span>(join_report)</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="fu">stopifnot</span>(</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>  <span class="fu">all</span>(join_report<span class="sc">$</span>input_rows <span class="sc">==</span> join_report<span class="sc">$</span>output_rows),</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>  <span class="fu">all</span>(join_report<span class="sc">$</span>unexpected_unmatched_rows <span class="sc">==</span> 0L)</span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>)</span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="fu">saveRDS</span>(join_report, <span class="st">&quot;data/derived/gerda_join_diagnostics.rds&quot;</span>)</span></code></pre></div>
+<p>For INKAR covariates, election years outside 1995–2022 are retained
+with missing joined values and reported as
+<code>outside_coverage_rows</code>; they are not treated as unexpected
+matches. <code>unmatched = &quot;error&quot;</code> still stops on valid-year keys
+that fail to match and on missing join keys in any year. The other modes
+are <code>&quot;warn&quot;</code> (the interactive default) and
+<code>&quot;ignore&quot;</code>. Capture diagnostics immediately after the join
+pipeline because unrelated data-frame transformations may remove custom
+attributes.</p>
+<p>A successful key match does not imply complete covariate values.
+Individual INKAR and Census variables can still be missing, so inspect
+payload missingness separately. Census values are a single 2022 snapshot
+and are time-invariant when attached to elections from other years.
+Exact identifier matches also do not by themselves establish that the
+election and covariate boundary vintages are substantively
+comparable.</p>
+</div>
+<div id="use-bundled-data-and-codebooks-directly" class="section level2">
+<h2>Use bundled data and codebooks directly</h2>
+<p>INKAR covariates and Census 2022 are bundled with the package and
+require no download. Their codebooks are machine-readable data
+frames:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>covariates <span class="ot">&lt;-</span> <span class="fu">gerda_covariates</span>()</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>covariate_codebook <span class="ot">&lt;-</span> <span class="fu">gerda_covariates_codebook</span>()</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>census <span class="ot">&lt;-</span> <span class="fu">gerda_census</span>()</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>census_codebook <span class="ot">&lt;-</span> <span class="fu">gerda_census_codebook</span>()</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="fu">stopifnot</span>(</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  <span class="sc">!</span><span class="fu">anyDuplicated</span>(covariates[<span class="fu">c</span>(<span class="st">&quot;county_code&quot;</span>, <span class="st">&quot;year&quot;</span>)]),</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  <span class="sc">!</span><span class="fu">anyDuplicated</span>(census[<span class="st">&quot;ags&quot;</span>]),</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>  <span class="fu">all</span>(<span class="fu">names</span>(covariates) <span class="sc">%in%</span> covariate_codebook<span class="sc">$</span>variable),</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>  <span class="fu">all</span>(<span class="fu">names</span>(census) <span class="sc">%in%</span> census_codebook<span class="sc">$</span>variable)</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>)</span></code></pre></div>
+<p>Before handing the project back, an agent should leave the exact
+dataset name and boundary rationale, package version, saved snapshot and
+checksum, complete row-key definition, missing-key and panel-gap checks,
+join diagnostics, variable missingness summary, and the GERDA citation
+returned by <code>citation(&quot;gerda&quot;)</code>.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
